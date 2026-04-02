@@ -1,28 +1,77 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
-const events = [
-  {
-    title: "Tour de Avalon",
-    date: "May 11, 2024",
-    location: "St. John’s, NL",
-  },
-  {
-    title: "Mountain Bike Challenge",
-    date: "June 1, 2024",
-    location: "Corner Brook, NL",
-  },
-  {
-    title: "Family Fun Ride",
-    date: "June 20, 2024",
-    location: "Gander, NL",
-  },
-]
+type EventItem = {
+  title: string | null
+  date: string | null
+  location: string | null
+  startTime?: string | null
+  experienceClass?: string | null
+}
 
 export default function EventsSection() {
+  const [events, setEvents] = useState<EventItem[]>([])
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const response = await fetch("/api/event")
+
+        if (!response.ok) {
+          return
+        }
+        const data = await response.json()
+        const upcomingEvents = Array.isArray(data.events) ? data.events : []
+        const sortedUpcomingEvents = upcomingEvents
+          .filter((event: EventItem) => {
+            if (!event.date) return false
+            const eventDate = new Date(event.date)
+            if (Number.isNaN(eventDate.getTime())) return false
+            const today = new Date()
+            today.setHours(0, 0, 0, 0)
+            eventDate.setHours(0, 0, 0, 0)
+            return eventDate >= today
+          })
+          .sort((firstEvent: EventItem, secondEvent: EventItem) => {
+            const firstDate = new Date(firstEvent.date ?? "")
+            const secondDate = new Date(secondEvent.date ?? "")
+            return firstDate.getTime() - secondDate.getTime()
+          })
+          .slice(0, 5)
+        setEvents(sortedUpcomingEvents)
+      } catch (error) {
+        console.error("Failed to load events:", error)
+      }
+    }
+    loadEvents()
+  }, [])
+
+  const formatDate = (dateValue: string | null) => {
+    if (!dateValue) return "Date TBA"
+    const parsedDate = new Date(dateValue)
+    if (Number.isNaN(parsedDate.getTime())) return "Date TBA"
+    return parsedDate.toLocaleDateString("en-CA", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
+  }
+
+  const formatStartTime = (startTime?: string | null) => {
+    if (!startTime) return null
+    const parsedTime = new Date(startTime)
+    if (Number.isNaN(parsedTime.getTime())) return null
+    return parsedTime.toLocaleTimeString("en-CA", {
+      hour: "numeric",
+      minute: "2-digit",
+    })
+  }
+
   return (
     <section className="py-16 bg-gray-100">
-      <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">        
+      <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
         <div>
           <h2 className="text-2xl font-bold mb-6">Upcoming Events</h2>
           <div className="space-y-4">
@@ -35,13 +84,23 @@ export default function EventsSection() {
                   📅
                 </div>
                 <div>
-                  <h3 className="font-semibold">{event.title}</h3>
+                  <h3 className="font-semibold">{event.title || "Untitled Event"}</h3>
                   <p className="text-sm text-gray-600">
-                    {event.date} | {event.location}
+                    {formatDate(event.date)}
+                    {formatStartTime(event.startTime) ? ` | ${formatStartTime(event.startTime)}` : ""}
+                    {event.location ? ` | ${event.location}` : " | Location TBA"}
                   </p>
+                  {event.experienceClass && (
+                    <p className="text-xs text-gray-500 mt-1">{event.experienceClass}</p>
+                  )}
                 </div>
               </div>
             ))}
+            {events.length === 0 && (
+              <div className="bg-white p-4 rounded-xl shadow-sm">
+                <p className="text-sm text-gray-600">No upcoming events right now.</p>
+              </div>
+            )}
           </div>
           <Link
             href="/events"

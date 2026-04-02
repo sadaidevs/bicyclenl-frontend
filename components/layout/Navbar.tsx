@@ -17,6 +17,7 @@ const navLinks = [
 	{ name: "News", href: "/news" },
 	{ name: "Resources", href: "/resources" },
 	{ name: "Contact", href: "/contact" },
+	{ name: "Company", href: "/company"},
 ]
 
 const aboutItems = [
