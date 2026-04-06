@@ -39,7 +39,9 @@ export default function AboutSection() {
 						return itemDate <= now
 						})
 					.sort((a: PostItem, b: PostItem) => {
-						return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+						const timeA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0
+						const timeB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0
+						return timeB - timeA
 						})
 					.slice(0, 3)
 				setPosts(latestPosts)
