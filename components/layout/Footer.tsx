@@ -1,17 +1,5 @@
 import Link from "next/link"
-
-const navLinks = [
-  { name: "Home", href: "/" },
-  { name: "About", href: "/about" },
-  { name: "Membership", href: "/membership" },
-  { name: "Development", href: "/development" },
-  { name: "Events", href: "/events" },
-  { name: "Coaching / Officials", href: "/coaching-officials" },
-  { name: "Partners / Sponsors", href: "/partners-sponsors" },
-  { name: "News", href: "/news" },
-  { name: "Resources", href: "/resources" },
-  { name: "Contact", href: "/contact" },
-]
+import { navLinks } from "@/lib/constants/navigation"
 
 export default function Footer() {
   return (

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
@@ -9,11 +9,19 @@ const images = [
   "/images/home2.jpeg",
   "/images/home3.jpg",
   "/images/home4.jpg",
-  "/images/home5.png",
 ]
 
 export default function Hero() {
   const [current, setCurrent] = useState(0)
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrent((prev) => (prev === images.length - 1 ? 0 : prev + 1))
+        }, 5000)
+
+        return () => clearInterval(timer)
+    }, [])
+
   const prevSlide = () => {
     setCurrent((prev) => (prev === 0 ? images.length - 1 : prev - 1))
   }

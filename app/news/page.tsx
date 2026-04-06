@@ -4,6 +4,18 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Lora, Nunito_Sans } from "next/font/google"
 import { Card, CardContent } from "@/components/ui/card"
+import EventsCalendar from "@/app/events/EventsCalendar"
+import PaginationControls from "@/components/ui/pagination-controls"
+import {
+    parseEventDate,
+    toDateKey,
+    formatDate as formatDisplayDate,
+    formatTime as formatDisplayTime,
+} from "@/lib/dateUtils"
+import { buildSearchText, matchesDateRange, matchesExactDate, normalizeQuery } from "@/lib/filters/filterUtils"
+import type { EventItem, NewsItem } from "@/lib/types/content"
+
+const NEWS_PAGE_SIZE = 6
 
 const headingFont = Lora({
     subsets: ["latin"],
@@ -15,27 +27,9 @@ const bodyFont = Nunito_Sans({
     weight: ["400", "500", "600", "700"],
 })
 
-type NewsItem = {
-    _id: string
-    slug?: string
-    title?: string
-    excerpt?: string
-    author?: unknown
-    publishedAt?: string
-    featuredImage?: any
-    externalLink?: string
-}
-
-type EventItem = {
-    title?: string
-    date?: string | null
-    location?: string | null
-    startTime?: string | null
-    experienceClass?: string | null
-}
-
 export default function NewsPage() {
     const [news, setNews] = useState<NewsItem[]>([])
+    const [newsPage, setNewsPage] = useState(1)
     const [events, setEvents] = useState<EventItem[]>([])
     const [publishedOn, setPublishedOn] = useState("")
     const [publishedFrom, setPublishedFrom] = useState("")
@@ -49,6 +43,10 @@ export default function NewsPage() {
         const today = new Date()
         return new Date(today.getFullYear(), today.getMonth(), 1)
     })
+
+    useEffect(() => {
+        document.title = "News - Bicycle Newfoundland"
+    }, [])
 
     useEffect(() => {
         async function loadNews() {
@@ -99,12 +97,12 @@ export default function NewsPage() {
                 const upcomingEvents = data.events
                     .filter((item: EventItem) => {
                         if (!item.date) return false
-                        const parsedDate = new Date(item.date)
+                        const parsedDate = parseEventDate(item.date)
                         return !Number.isNaN(parsedDate.getTime())
                     })
                         .sort((firstEvent: EventItem, secondEvent: EventItem) => {
-                        const firstTime = firstEvent.date ? new Date(firstEvent.date).getTime() : 0
-                        const secondTime = secondEvent.date ? new Date(secondEvent.date).getTime() : 0
+                        const firstTime = firstEvent.date ? parseEventDate(firstEvent.date).getTime() : 0
+                        const secondTime = secondEvent.date ? parseEventDate(secondEvent.date).getTime() : 0
                         return firstTime - secondTime
                     })
                 setEvents(upcomingEvents)
@@ -115,47 +113,14 @@ export default function NewsPage() {
         loadNews()
         loadEvents()
     }, [])
-    const formatDate = (value?: string | null) => {
-        if (!value) return "Date TBA"
-        const parsedDate = new Date(value)
-        if (Number.isNaN(parsedDate.getTime())) return ""
-        return parsedDate.toLocaleDateString("en-CA", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        })
-    }
-    const formatTime = (value?: string | null) => {
-        if (!value) return ""
-        const parsedTime = new Date(value)
-        if (Number.isNaN(parsedTime.getTime())) return ""
-        return parsedTime.toLocaleTimeString("en-CA", {
-            hour: "numeric",
-            minute: "2-digit",
-        })
-    }
-
-    const monthName = currentMonth.toLocaleDateString("en-CA", {
-        month: "long",
-        year: "numeric",
-    })
-
-    const daysInMonth = new Date(currentMonth.getFullYear(),currentMonth.getMonth() + 1,0,).getDate()
-    const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay()
-    const leadingEmptyCells = Array.from({ length: firstDayOfMonth }, (_, index) => `empty-${index}`)
-    const monthDates = Array.from({ length: daysInMonth }, (_, index) => {
-    const day = index + 1
-    return new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day)
-    })
-
     const eventDateSet = new Set(
     events
-        .map((item) => (item.date ? toDateKey(new Date(item.date)) : ""))
+        .map((item) => (item.date ? toDateKey(parseEventDate(item.date)) : ""))
         .filter((value) => value.length > 0),
     )
     const eventsForSelectedDay = events.filter((item) => {
         if (!item.date) return false
-        return toDateKey(new Date(item.date)) === selectedDate
+        return toDateKey(parseEventDate(item.date)) === selectedDate
     })
     const goToPreviousMonth = () => {
         setCurrentMonth(
@@ -165,29 +130,36 @@ export default function NewsPage() {
     const goToNextMonth = () => {
         setCurrentMonth((previousMonth) => new Date(previousMonth.getFullYear(), previousMonth.getMonth() + 1, 1))
     }
-    const normalizedKeywordQuery = keywordQuery.trim().toLowerCase()
+    const normalizedKeywordQuery = normalizeQuery(keywordQuery)
     const filteredNews = news.filter((item) => {
         if (!item.publishedAt) return false
         const parsedPublishedDate = new Date(item.publishedAt)
         if (Number.isNaN(parsedPublishedDate.getTime())) return false
         const publishedDateKey = toDateKey(parsedPublishedDate)
-        const matchesOnDate = !publishedOn || publishedDateKey === publishedOn
+        const matchesOnDate = matchesExactDate(publishedDateKey, publishedOn)
         if (!matchesOnDate) return false
         if (!publishedOn) {
-            const matchesFromDate = !publishedFrom || publishedDateKey >= publishedFrom
-            const matchesToDate = !publishedTo || publishedDateKey <= publishedTo
-            if (!matchesFromDate || !matchesToDate) return false
+            if (!matchesDateRange(publishedDateKey, publishedFrom, publishedTo)) return false
         }
         if (!normalizedKeywordQuery) return true
         const contentText = getMainContentText(item)
-        const combinedSearchText = `${item.title || ""} ${item.excerpt || ""} ${contentText}`.toLowerCase()
+        const combinedSearchText = buildSearchText([item.title, item.excerpt, contentText])
         return combinedSearchText.includes(normalizedKeywordQuery)
     })
+    const totalNewsPages = Math.max(1, Math.ceil(filteredNews.length / NEWS_PAGE_SIZE))
+
+    useEffect(() => {
+        setNewsPage((previousPage) => Math.min(previousPage, totalNewsPages))
+    }, [totalNewsPages])
+
+    const newsStartIndex = (newsPage - 1) * NEWS_PAGE_SIZE
+    const paginatedNews = filteredNews.slice(newsStartIndex, newsStartIndex + NEWS_PAGE_SIZE)
     const clearNewsFilters = () => {
         setPublishedOn("")
         setPublishedFrom("")
         setPublishedTo("")
         setKeywordQuery("")
+        setNewsPage(1)
     }
 
     return (
@@ -257,11 +229,11 @@ export default function NewsPage() {
                         </div>
                         ) : (
                         <div className="space-y-4">
-                            {filteredNews.map((item, index) => (
+                            {paginatedNews.map((item, index) => (
                             <Card key={item._id || index} className="overflow-hidden">
                                 <CardContent className="p-5">
                                     <div className="flex-1">
-                                        <div className="mb-2 text-xs text-gray-500">{formatDate(item.publishedAt)}</div>
+                                        <div className="mb-2 text-xs text-gray-500">{formatDisplayDate(item.publishedAt)}</div>
                                         <Link
                                             href={`/news/${item.slug || item._id}`}
                                             className={`${headingFont.className} text-3xl font-semibold leading-tight text-gray-900 transition hover:text-blue-600`}
@@ -278,72 +250,28 @@ export default function NewsPage() {
                                 </CardContent>
                             </Card>
                             ))}
+                            <PaginationControls
+                                currentPage={newsPage}
+                                totalItems={filteredNews.length}
+                                itemsPerPage={NEWS_PAGE_SIZE}
+                                onPageSelect={setNewsPage}
+                                onPrevious={() => setNewsPage((previousPage) => Math.max(1, previousPage - 1))}
+                                onNext={() => setNewsPage((previousPage) => Math.min(totalNewsPages, previousPage + 1))}
+                            />
                         </div>
                         )}
                     </div>
                     <aside className="space-y-4 lg:col-span-1">
-                        <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100">
-                            <div className="mb-4 flex items-center justify-between">
-                                <button
-                                    type="button"
-                                    onClick={goToPreviousMonth}
-                                    className="rounded-md border border-gray-200 px-2 py-1 text-sm text-gray-600 transition hover:border-blue-400 hover:text-blue-700"
-                                    aria-label="Previous month"
-                                >
-                                    Prev
-                                </button>
-                                <p className={`${headingFont.className} text-base font-semibold text-gray-900`}>{monthName}</p>
-                                <button
-                                    type="button"
-                                    onClick={goToNextMonth}
-                                    className="rounded-md border border-gray-200 px-2 py-1 text-sm text-gray-600 transition hover:border-blue-400 hover:text-blue-700"
-                                    aria-label="Next month"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                            <div className="mb-2 grid grid-cols-7 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                <span>Sun</span>
-                                <span>Mon</span>
-                                <span>Tue</span>
-                                <span>Wed</span>
-                                <span>Thu</span>
-                                <span>Fri</span>
-                                <span>Sat</span>
-                            </div>
-                            <div className="grid grid-cols-7 gap-1 text-center text-sm">
-                                {leadingEmptyCells.map((cellKey) => (
-                                <div key={cellKey} className="h-9" />
-                                ))}
-                                {monthDates.map((dateValue) => {
-                                const dateKey = toDateKey(dateValue)
-                                const hasEvents = eventDateSet.has(dateKey)
-                                const isSelected = selectedDate === dateKey
-                                return (
-                                    <button
-                                        key={dateKey}
-                                        type="button"
-                                        onClick={() => setSelectedDate(dateKey)}
-                                        className={`relative h-9 rounded-md transition ${
-                                            isSelected
-                                            ? "bg-blue-600 text-white"
-                                            : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
-                                        }`}
-                                    >
-                                        {dateValue.getDate()}
-                                        {hasEvents && (
-                                            <span
-                                            className={`absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full ${
-                                                isSelected ? "bg-white" : "bg-red-500"
-                                            }`}
-                                            />
-                                        )}
-                                    </button>
-                                )
-                                })}
-                            </div>
-                            <p className="mt-4 text-xs text-gray-500">Dates with a red dot have scheduled events.</p>
-                        </div>
+                        <EventsCalendar
+                            currentMonth={currentMonth}
+                            selectedDateKey={selectedDate}
+                            eventDateSet={eventDateSet}
+                            onPreviousMonth={goToPreviousMonth}
+                            onNextMonth={goToNextMonth}
+                            onSelectDate={setSelectedDate}
+                            monthLabelClassName={`${headingFont.className} text-base font-semibold text-gray-900`}
+                            noteText="Dates with a red dot have scheduled events."
+                        />
                         <div className="space-y-3">
                             {eventsForSelectedDay.length === 0 ? (
                                 <div className="rounded-xl border border-dashed border-gray-300 bg-white p-4 text-center text-sm text-gray-500">
@@ -354,13 +282,13 @@ export default function NewsPage() {
                                 <Card key={`${event.title ?? "event"}-${index}`} className="overflow-hidden">
                                     <CardContent className="p-4">
                                     <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-blue-600">
-                                        {formatDate(event.date)}
+                                        {formatDisplayDate(event.date)}
                                     </div>
                                     <h3 className={`${headingFont.className} text-lg font-semibold text-gray-900`}>
                                         {event.title || "Untitled Event"}
                                     </h3>
                                     <p className="mt-1 text-sm text-gray-600">
-                                        {formatTime(event.startTime) ? `${formatTime(event.startTime)} | ` : ""}
+                                        {formatDisplayTime(event.startTime) ? `${formatDisplayTime(event.startTime)} | ` : ""}
                                         {event.location || "Location TBA"}
                                     </p>
                                     </CardContent>
@@ -373,12 +301,6 @@ export default function NewsPage() {
             </div>
         </section>
   )
-}
-
-function toDateKey(inputDate: Date) {
-    return `${inputDate.getFullYear()}-${String(inputDate.getMonth() + 1).padStart(2, "0")}-${String(
-        inputDate.getDate(),
-    ).padStart(2, "0")}`
 }
 
 function getMainContentText(item: NewsItem) {
