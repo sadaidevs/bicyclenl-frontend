@@ -8,6 +8,7 @@ import { urlFor } from "@/lib/sanity/image"
 
 type NewsItem = {
     _id: string
+    slug?: string
     title?: string
     excerpt?: string
     publishedAt?: string
@@ -71,14 +72,10 @@ export default function NewsSection() {
             <h2 className="text-2xl font-bold mb-8">Latest News</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {news.map((item, index) => (
-                    <div
+                    <Link
                         key={item._id || index}
+                        href={`/news/${item.slug || item._id}`}
                         className="overflow-hidden rounded-xl cursor-pointer transition hover:shadow-lg"
-                        onClick={() => {
-                            if (item.externalLink) {
-                                window.open(item.externalLink, "_blank")
-                            }
-                        }}
                     >
                         <Card className="h-full">
                             {item.featuredImage && (
@@ -105,7 +102,7 @@ export default function NewsSection() {
                                 )}
                             </CardContent>
                         </Card>
-                    </div>
+                    </Link>
                 ))}
             </div>
             {news.length === 0 && (
