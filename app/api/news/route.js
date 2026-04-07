@@ -1,7 +1,7 @@
 import {client} from '@/lib/sanity/sanity'
 
 export async function GET() {
-    const query = `*[_type in ["news", "newsItem"]] | order(coalesce(publishedAt, _createdAt) desc)[0...5] {
+    const query = `*[_type in ["news", "newsItem"]] | order(coalesce(publishedAt, _createdAt) desc) {
         _id,
         "title": coalesce(title, "Untitled News"),
         "slug": coalesce(slug.current, ""),
