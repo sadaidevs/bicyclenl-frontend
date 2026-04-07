@@ -1,9 +1,17 @@
+export type EventLinkItem = {
+  label?: string | null
+  url?: string | null
+}
+
 export type EventItem = {
   title?: string | null
   date?: string | null
   location?: string | null
   startTime?: string | null
   experienceClass?: string | null
+  discipline?: string | null
+  description?: string | null
+  links?: EventLinkItem[] | null
 }
 
 export type NewsItem = {

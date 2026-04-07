@@ -4,9 +4,12 @@ export async function GET() {
     const query = `*[_type == "eventItem"]{
         "title": eventTitle,
         "date": eventDate,
+        "startTime": eventDate,
         location,
-        startTime,
         experienceClass,
+        discipline,
+        description,
+        "links": coalesce(links, []),
     }`
 
     const events = await client.fetch(query)

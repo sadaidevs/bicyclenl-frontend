@@ -6,11 +6,11 @@ import { Lora, Nunito_Sans } from "next/font/google"
 import { Card, CardContent } from "@/components/ui/card"
 import EventsCalendar from "@/app/events/EventsCalendar"
 import PaginationControls from "@/components/ui/pagination-controls"
+import EventExpandableCard from "@/app/events/EventExpandableCard"
 import {
     parseEventDate,
     toDateKey,
     formatDate as formatDisplayDate,
-    formatTime as formatDisplayTime,
 } from "@/lib/dateUtils"
 import { buildSearchText, matchesDateRange, matchesExactDate, normalizeQuery } from "@/lib/filters/filterUtils"
 import type { EventItem, NewsItem } from "@/lib/types/content"
@@ -279,20 +279,11 @@ export default function NewsPage() {
                                 </div>
                             ) : (
                                 eventsForSelectedDay.map((event, index) => (
-                                <Card key={`${event.title ?? "event"}-${index}`} className="overflow-hidden">
-                                    <CardContent className="p-4">
-                                    <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-blue-600">
-                                        {formatDisplayDate(event.date)}
-                                    </div>
-                                    <h3 className={`${headingFont.className} text-lg font-semibold text-gray-900`}>
-                                        {event.title || "Untitled Event"}
-                                    </h3>
-                                    <p className="mt-1 text-sm text-gray-600">
-                                        {formatDisplayTime(event.startTime) ? `${formatDisplayTime(event.startTime)} | ` : ""}
-                                        {event.location || "Location TBA"}
-                                    </p>
-                                    </CardContent>
-                                </Card>
+                                  <EventExpandableCard
+                                    key={`${event.title ?? "event"}-${event.date ?? "date"}-${index}`}
+                                    event={event}
+                                                                        compact
+                                  />
                                 ))
                             )}
                         </div>

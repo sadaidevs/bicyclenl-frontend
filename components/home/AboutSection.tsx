@@ -6,12 +6,14 @@ import { JSX } from "react"
 import { FaFacebookF, FaInstagram } from "react-icons/fa"
 import { FaXTwitter } from "react-icons/fa6"
 import type { PostItem } from "@/lib/types/content"
+import { useAboutContact } from "@/components/home/AboutContactContext"
 
 type SocialName = "Facebook" | "X" | "Instagram"
 
 
 export default function AboutSection() {
 	const [posts, setPosts] = useState<PostItem[]>([])
+	const { contact } = useAboutContact()
 	useEffect(() => {
 		async function loadPosts() {
 			try {
@@ -93,17 +95,17 @@ export default function AboutSection() {
 	<section className="bg-linear-to-b from-sky-900 via-blue-900 to-blue-800 py-10 text-white sm:py-12">
 		<div className="mx-auto max-w-6xl px-4 sm:px-6">
 			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-				<div className="rounded-2xl border border-white/10 bg-white/8 p-5 shadow-lg shadow-black/10 backdrop-blur-sm sm:col-span-2 lg:col-span-1">
+				<div className="flex h-full flex-col justify-center rounded-2xl border border-white/10 bg-white/8 p-5 text-center shadow-lg shadow-black/10 backdrop-blur-sm sm:col-span-2 lg:col-span-1">
 					<h3 className="mb-4 text-lg font-semibold sm:text-xl">{data.title}</h3>
 					<img
 						src={data.logo}
 						alt="Bicycle NL"
-						className="mb-4 h-auto w-28 sm:w-32"
+						className="mx-auto mb-4 h-auto w-28 sm:w-32"
 					/>
 					<p className="mb-4 max-w-md text-sm leading-6 text-white/90 sm:text-base">
 						{data.description}
 					</p>
-					<div className="flex flex-wrap gap-3">
+					<div className="flex flex-wrap justify-center gap-3">
 						{data.socials.map((s) => (
 							<a
 								key={s.name}
@@ -116,6 +118,17 @@ export default function AboutSection() {
 							</a>
 						))}
 					</div>
+					{contact ? (
+						<p className="mt-4 text-sm text-white/90 sm:text-base">
+							Contact for {contact.label} questions:{" "}
+							<a
+								href={`mailto:${contact.email}`}
+								className="font-semibold underline decoration-white/40 underline-offset-4 transition hover:text-red-400"
+							>
+								{contact.email}
+							</a>
+						</p>
+					) : null}
 				</div>
 
 				<div className="rounded-2xl border border-white/10 bg-white/8 p-5 shadow-lg shadow-black/10 backdrop-blur-sm">

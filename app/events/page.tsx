@@ -1,23 +1,38 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { formatDate, formatTime, toDateKey, parseEventStartTime, parseEventDate } from "@/lib/dateUtils"
+import { toDateKey, parseEventStartTime, parseEventDate } from "@/lib/dateUtils"
 import EventsCalendar from "@/app/events/EventsCalendar"
 import PaginationControls from "@/components/ui/pagination-controls"
 import { buildSearchText, matchesDateRange, normalizeQuery } from "@/lib/filters/filterUtils"
 import type { EventItem } from "@/lib/types/content"
 import NewsSection from "@/components/home/NewsSection"
+import EventExpandableCard from "@/app/events/EventExpandableCard"
+import FormsSection from "./FormsSection"
+import { useSetAboutContact } from "@/components/home/AboutContactContext"
 
 const PAGE_SIZE = 5
+type EventTab = "today" | "upcoming" | "past" | "tba"
+
+type TabPages = Record<EventTab, number>
+
+function hasValidEventDate(event: EventItem) {
+  if (!event.date) return false
+
+  const parsedDate = parseEventDate(event.date)
+  return !Number.isNaN(parsedDate.getTime())
+}
 
 export default function EventsPage() {
+  useSetAboutContact("event", "events@bicyclenl.com")
+
   const [events, setEvents] = useState<EventItem[]>([])
-  const [expandedEventKeys, setExpandedEventKeys] = useState<Record<string, boolean>>({})
-  const [activeTab, setActiveTab] = useState<"today" | "upcoming" | "past">("today")
-  const [tabPages, setTabPages] = useState<{ today: number; upcoming: number; past: number }>({
+  const [activeTab, setActiveTab] = useState<EventTab>("today")
+  const [tabPages, setTabPages] = useState<TabPages>({
     today: 1,
     upcoming: 1,
     past: 1,
+    tba: 1,
   })
   const [keyword, setKeyword] = useState("")
   const [dateFrom, setDateFrom] = useState("")
@@ -47,10 +62,7 @@ export default function EventsPage() {
         }
         const validEvents = data.events
           .filter((item: EventItem) => {
-            if (!item.date) return false
-            const parsedDate = parseEventDate(item.date)
-            if (Number.isNaN(parsedDate.getTime())) return false
-            return true
+            return !item.date || hasValidEventDate(item)
           })
         setEvents(validEvents)
       } catch {
@@ -66,13 +78,24 @@ export default function EventsPage() {
   const todayDateKey = toDateKey(todayDate)
   const keywordFilteredEvents = useMemo(() => {
     return events.filter((event) => {
-      if (!event.date) return false
-      const parsedDate = parseEventDate(event.date)
-      if (Number.isNaN(parsedDate.getTime())) return false
-      const eventDateKey = toDateKey(parsedDate)
-      if (!matchesDateRange(eventDateKey, dateFrom, dateTo)) return false
+      const eventHasDate = hasValidEventDate(event)
+      const eventDateKey = eventHasDate && event.date ? toDateKey(parseEventDate(event.date)) : ""
+
+      if ((dateFrom || dateTo || onDate) && !eventHasDate) return false
+      if (eventHasDate && !matchesDateRange(eventDateKey, dateFrom, dateTo)) return false
+      if (onDate && eventDateKey !== onDate) return false
       if (!normalizedKeyword) return true
-      const searchableText = buildSearchText([event.title, event.location, event.experienceClass])
+      const eventLinksText = Array.isArray(event.links)
+        ? event.links.map((link) => `${link?.label || ""} ${link?.url || ""}`).join(" ")
+        : ""
+      const searchableText = buildSearchText([
+        event.title,
+        event.location,
+        event.experienceClass,
+        event.discipline,
+        event.description,
+        eventLinksText,
+      ])
       return searchableText.includes(normalizedKeyword)
     })
   }, [events, normalizedKeyword, dateFrom, dateTo])
@@ -86,15 +109,14 @@ export default function EventsPage() {
   const todaysEvents = useMemo(() => {
     return dateFilteredEvents
       .filter((event) => {
-        if (!event.date) return false
-        return toDateKey(parseEventDate(event.date)) === todayDateKey
+        return hasValidEventDate(event) && event.date ? toDateKey(parseEventDate(event.date)) === todayDateKey : false
       })
       .sort((first, second) => parseEventStartTime(first) - parseEventStartTime(second))
   }, [dateFilteredEvents, todayDateKey])
   const upcomingEvents = useMemo(() => {
     return dateFilteredEvents
       .filter((event) => {
-        if (!event.date) return false
+        if (!hasValidEventDate(event) || !event.date) return false
         const eventDay = parseEventDate(event.date)
         eventDay.setHours(0, 0, 0, 0)
         return eventDay > todayDate
@@ -112,7 +134,7 @@ export default function EventsPage() {
   const pastEvents = useMemo(() => {
     return dateFilteredEvents
       .filter((event) => {
-        if (!event.date) return false
+        if (!hasValidEventDate(event) || !event.date) return false
         const eventDay = parseEventDate(event.date)
         eventDay.setHours(0, 0, 0, 0)
         return eventDay < todayDate
@@ -127,6 +149,9 @@ export default function EventsPage() {
         return parseEventStartTime(first) - parseEventStartTime(second)
       })
   }, [dateFilteredEvents, todayDate])
+  const tbaEvents = useMemo(() => {
+    return dateFilteredEvents.filter((event) => !hasValidEventDate(event))
+  }, [dateFilteredEvents])
   const eventDateSet = new Set(
     events
       .map((item) => (item.date ? toDateKey(parseEventDate(item.date)) : ""))
@@ -136,6 +161,7 @@ export default function EventsPage() {
   const rangeIncludesToday = (!dateFrom || dateFrom <= todayDateKey) && (!dateTo || dateTo >= todayDateKey)
   const rangeCanIncludeUpcoming = !dateTo || dateTo > todayDateKey
   const rangeCanIncludePast = !dateFrom || dateFrom < todayDateKey
+  const showTbaSection = !onDate && tbaEvents.length > 0
   const showTodaySection = onDate
     ? onDate === todayDateKey
     : hasRangeFilter
@@ -151,11 +177,13 @@ export default function EventsPage() {
     : hasRangeFilter
       ? rangeCanIncludePast
       : true
+  const showTbaSectionFinal = showTbaSection
 
   useEffect(() => {
     if (activeTab === "today" && showTodaySection) return
     if (activeTab === "upcoming" && showUpcomingSection) return
     if (activeTab === "past" && showPastSection) return
+    if (activeTab === "tba" && showTbaSectionFinal) return
 
     if (showTodaySection) {
       setActiveTab("today")
@@ -167,8 +195,12 @@ export default function EventsPage() {
     }
     if (showPastSection) {
       setActiveTab("past")
+      return
     }
-  }, [activeTab, showTodaySection, showUpcomingSection, showPastSection])
+    if (showTbaSectionFinal) {
+      setActiveTab("tba")
+    }
+  }, [activeTab, showTodaySection, showUpcomingSection, showPastSection, showTbaSectionFinal])
   const goToPreviousMonth = () => {
     setCurrentMonth(
       (previousMonth) => new Date(previousMonth.getFullYear(), previousMonth.getMonth() - 1, 1),
@@ -178,108 +210,36 @@ export default function EventsPage() {
     setCurrentMonth((previousMonth) => new Date(previousMonth.getFullYear(), previousMonth.getMonth() + 1, 1))
   }
 
-  const getDateBadgeParts = (value?: string | null) => {
-    if (!value) {
-      return { day: "--", month: "TBA" }
-    }
-
-    const parsed = parseEventDate(value)
-    if (Number.isNaN(parsed.getTime())) {
-      return { day: "--", month: "TBA" }
-    }
-
-    return {
-      day: String(parsed.getDate()),
-      month: parsed.toLocaleDateString("en-CA", { month: "short" }).toUpperCase(),
-    }
-  }
-
-  const toggleEventDetails = (eventKey: string) => {
-    setExpandedEventKeys((previous) => ({
-      ...previous,
-      [eventKey]: !previous[eventKey],
-    }))
-  }
-
-  const getEventCardKey = (section: "today" | "upcoming" | "past", event: EventItem, index: number) => {
+  const getEventCardKey = (section: EventTab, event: EventItem, index: number) => {
     return `${section}-${event.title || "event"}-${event.date || "date"}-${index}`
-  }
-
-  const renderEventCard = (section: "today" | "upcoming" | "past", event: EventItem, index: number) => {
-    const eventKey = getEventCardKey(section, event, index)
-    const isExpanded = Boolean(expandedEventKeys[eventKey])
-    const { day, month } = getDateBadgeParts(event.date)
-
-    return (
-      <article key={eventKey} className="rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-gray-100">
-        <div className="flex items-center gap-4">
-          <div className="w-12 shrink-0 rounded-md bg-red-500 py-2 text-center text-white">
-            <div className="text-[11px] font-semibold uppercase leading-none">{month}</div>
-            <div className="mt-1 text-base font-bold leading-none">{day}</div>
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="truncate text-sm font-semibold text-gray-900">{event.title || "Untitled Event"}</h3>
-            <p className="mt-1 truncate text-xs text-gray-600">
-              {formatDate(event.date)}
-              {formatTime(event.startTime) ? `, ${formatTime(event.startTime)}` : ""}
-              {event.location ? `, ${event.location}` : ""}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => toggleEventDetails(eventKey)}
-            className="shrink-0 rounded-md bg-blue-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-800"
-          >
-            {isExpanded ? "Close Details" : "View Details"}
-          </button>
-        </div>
-        {isExpanded && (
-          <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
-            <div className="grid grid-cols-1 gap-2">
-              <p>
-                <span className="font-semibold text-gray-900">Title:</span> {event.title || "Not available"}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-900">Date:</span> {formatDate(event.date)}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-900">Start Time:</span> {formatTime(event.startTime) || "Not available"}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-900">Location:</span> {event.location || "Not available"}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-900">Experience Class:</span> {event.experienceClass || "Not available"}
-              </p>
-            </div>
-          </div>
-        )}
-      </article>
-    )
   }
 
   const sectionEvents = {
     today: todaysEvents,
     upcoming: upcomingEvents,
     past: pastEvents,
+    tba: tbaEvents,
   }
 
   const sectionVisibility = {
     today: showTodaySection,
     upcoming: showUpcomingSection,
     past: showPastSection,
+    tba: showTbaSectionFinal,
   }
 
   const sectionHeadings = {
     today: "Today's Events",
     upcoming: "Upcoming Events",
     past: "Past Events",
+    tba: "Date to be announced",
   }
 
   const totalPagesByTab = {
     today: Math.max(1, Math.ceil(todaysEvents.length / PAGE_SIZE)),
     upcoming: Math.max(1, Math.ceil(upcomingEvents.length / PAGE_SIZE)),
     past: Math.max(1, Math.ceil(pastEvents.length / PAGE_SIZE)),
+    tba: Math.max(1, Math.ceil(tbaEvents.length / PAGE_SIZE)),
   }
 
   useEffect(() => {
@@ -287,8 +247,9 @@ export default function EventsPage() {
       today: Math.min(previous.today, totalPagesByTab.today),
       upcoming: Math.min(previous.upcoming, totalPagesByTab.upcoming),
       past: Math.min(previous.past, totalPagesByTab.past),
+      tba: Math.min(previous.tba, totalPagesByTab.tba),
     }))
-  }, [totalPagesByTab.today, totalPagesByTab.upcoming, totalPagesByTab.past])
+  }, [totalPagesByTab.today, totalPagesByTab.upcoming, totalPagesByTab.past, totalPagesByTab.tba])
 
   const activeEvents = sectionEvents[activeTab]
   const activeHeading = sectionHeadings[activeTab]
@@ -305,6 +266,8 @@ export default function EventsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Events</h1>
           <p className="mt-2 text-sm text-gray-600">Browse upcoming Bicycle NL events</p>
         </div>
+      </div>
+      <div className="mx-auto max-w-6xl px-6">
         <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4">
           <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Filter Events</p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
@@ -395,6 +358,18 @@ export default function EventsPage() {
               >
                 Past
               </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("tba")}
+                disabled={!showTbaSectionFinal}
+                className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
+                  activeTab === "tba"
+                    ? "bg-blue-700 text-white"
+                    : "border border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:text-blue-700"
+                } ${!showTbaSectionFinal ? "cursor-not-allowed opacity-40" : ""}`}
+              >
+                Date to be announced
+              </button>
             </div>
 
             <div>
@@ -405,13 +380,18 @@ export default function EventsPage() {
                     ? "No events for today."
                     : activeTab === "upcoming"
                       ? "No upcoming events."
-                      : "No past events."}
+                      : activeTab === "past"
+                        ? "No past events."
+                        : "No events with dates to be announced."}
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {paginatedActiveEvents.map((event, index) =>
-                    renderEventCard(activeTab, event, activeStartIndex + index),
-                  )}
+                  {paginatedActiveEvents.map((event, index) => (
+                    <EventExpandableCard
+                      key={getEventCardKey(activeTab, event, activeStartIndex + index)}
+                      event={event}
+                    />
+                  ))}
                   <PaginationControls
                     currentPage={activePage}
                     totalItems={activeEvents.length}
@@ -459,6 +439,7 @@ export default function EventsPage() {
           </aside>
         </div>
       </div>
+      <FormsSection />
       <NewsSection />
     </section>
   )
