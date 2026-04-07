@@ -1,18 +1,18 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { formatDate, formatTime, toDateKey, parseEventStartTime, parseEventDate } from "@/lib/dateUtils"
+import { toDateKey, parseEventStartTime, parseEventDate } from "@/lib/dateUtils"
 import EventsCalendar from "@/app/events/EventsCalendar"
 import PaginationControls from "@/components/ui/pagination-controls"
 import { buildSearchText, matchesDateRange, normalizeQuery } from "@/lib/filters/filterUtils"
 import type { EventItem } from "@/lib/types/content"
 import NewsSection from "@/components/home/NewsSection"
+import EventExpandableCard from "@/app/events/EventExpandableCard"
 
 const PAGE_SIZE = 5
 
 export default function EventsPage() {
   const [events, setEvents] = useState<EventItem[]>([])
-  const [expandedEventKeys, setExpandedEventKeys] = useState<Record<string, boolean>>({})
   const [activeTab, setActiveTab] = useState<"today" | "upcoming" | "past">("today")
   const [tabPages, setTabPages] = useState<{ today: number; upcoming: number; past: number }>({
     today: 1,
@@ -72,7 +72,17 @@ export default function EventsPage() {
       const eventDateKey = toDateKey(parsedDate)
       if (!matchesDateRange(eventDateKey, dateFrom, dateTo)) return false
       if (!normalizedKeyword) return true
-      const searchableText = buildSearchText([event.title, event.location, event.experienceClass])
+      const eventLinksText = Array.isArray(event.links)
+        ? event.links.map((link) => `${link?.label || ""} ${link?.url || ""}`).join(" ")
+        : ""
+      const searchableText = buildSearchText([
+        event.title,
+        event.location,
+        event.experienceClass,
+        event.discipline,
+        event.description,
+        eventLinksText,
+      ])
       return searchableText.includes(normalizedKeyword)
     })
   }, [events, normalizedKeyword, dateFrom, dateTo])
@@ -178,84 +188,8 @@ export default function EventsPage() {
     setCurrentMonth((previousMonth) => new Date(previousMonth.getFullYear(), previousMonth.getMonth() + 1, 1))
   }
 
-  const getDateBadgeParts = (value?: string | null) => {
-    if (!value) {
-      return { day: "--", month: "TBA" }
-    }
-
-    const parsed = parseEventDate(value)
-    if (Number.isNaN(parsed.getTime())) {
-      return { day: "--", month: "TBA" }
-    }
-
-    return {
-      day: String(parsed.getDate()),
-      month: parsed.toLocaleDateString("en-CA", { month: "short" }).toUpperCase(),
-    }
-  }
-
-  const toggleEventDetails = (eventKey: string) => {
-    setExpandedEventKeys((previous) => ({
-      ...previous,
-      [eventKey]: !previous[eventKey],
-    }))
-  }
-
   const getEventCardKey = (section: "today" | "upcoming" | "past", event: EventItem, index: number) => {
     return `${section}-${event.title || "event"}-${event.date || "date"}-${index}`
-  }
-
-  const renderEventCard = (section: "today" | "upcoming" | "past", event: EventItem, index: number) => {
-    const eventKey = getEventCardKey(section, event, index)
-    const isExpanded = Boolean(expandedEventKeys[eventKey])
-    const { day, month } = getDateBadgeParts(event.date)
-
-    return (
-      <article key={eventKey} className="rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-gray-100">
-        <div className="flex items-center gap-4">
-          <div className="w-12 shrink-0 rounded-md bg-red-500 py-2 text-center text-white">
-            <div className="text-[11px] font-semibold uppercase leading-none">{month}</div>
-            <div className="mt-1 text-base font-bold leading-none">{day}</div>
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="truncate text-sm font-semibold text-gray-900">{event.title || "Untitled Event"}</h3>
-            <p className="mt-1 truncate text-xs text-gray-600">
-              {formatDate(event.date)}
-              {formatTime(event.startTime) ? `, ${formatTime(event.startTime)}` : ""}
-              {event.location ? `, ${event.location}` : ""}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => toggleEventDetails(eventKey)}
-            className="shrink-0 rounded-md bg-blue-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-800"
-          >
-            {isExpanded ? "Close Details" : "View Details"}
-          </button>
-        </div>
-        {isExpanded && (
-          <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
-            <div className="grid grid-cols-1 gap-2">
-              <p>
-                <span className="font-semibold text-gray-900">Title:</span> {event.title || "Not available"}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-900">Date:</span> {formatDate(event.date)}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-900">Start Time:</span> {formatTime(event.startTime) || "Not available"}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-900">Location:</span> {event.location || "Not available"}
-              </p>
-              <p>
-                <span className="font-semibold text-gray-900">Experience Class:</span> {event.experienceClass || "Not available"}
-              </p>
-            </div>
-          </div>
-        )}
-      </article>
-    )
   }
 
   const sectionEvents = {
@@ -409,9 +343,12 @@ export default function EventsPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {paginatedActiveEvents.map((event, index) =>
-                    renderEventCard(activeTab, event, activeStartIndex + index),
-                  )}
+                  {paginatedActiveEvents.map((event, index) => (
+                    <EventExpandableCard
+                      key={getEventCardKey(activeTab, event, activeStartIndex + index)}
+                      event={event}
+                    />
+                  ))}
                   <PaginationControls
                     currentPage={activePage}
                     totalItems={activeEvents.length}

@@ -13,11 +13,14 @@ export async function GET() {
         "publishedAt": coalesce(publishedAt, _createdAt),
         relatedEvent->{
             _id,
-            eventTitle,
-            eventDate,
+            "title": eventTitle,
+            "date": eventDate,
+            "startTime": eventDate,
             location,
-            startTime,
-            experienceClass
+            experienceClass,
+            discipline,
+            description,
+            "links": coalesce(links, [])
         },
         externalLink
     }`
