@@ -71,9 +71,9 @@ export default function AboutSection() {
 		logo: "/images/logo.webp",
 
 		socials: [
-			{ name: "Facebook", href: "https://www.facebook.com" },
-			{ name: "X", href: "https://x.com" },
-			{ name: "Instagram", href: "https://www.instagram.com" },
+			{ name: "Facebook", href: "https://www.facebook.com/BicycleNL/" },
+			{ name: "X", href: "https://x.com/bicyclenl" },
+			{ name: "Instagram", href: "https://www.instagram.com/accounts/login/" },
 		],
 
 		links: [
