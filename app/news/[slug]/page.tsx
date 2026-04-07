@@ -2,6 +2,8 @@ import Link from "next/link"
 import { Lora, Nunito_Sans } from "next/font/google"
 import { notFound } from "next/navigation"
 import { client } from "@/lib/sanity/sanity"
+import { formatDate as formatDisplayDate } from "@/lib/dateUtils"
+import type { NewsDetails } from "@/lib/types/content"
 
 const headingFont = Lora({
     subsets: ["latin"],
@@ -12,26 +14,6 @@ const bodyFont = Nunito_Sans({
     subsets: ["latin"],
     weight: ["400", "500", "600", "700"],
 })
-
-type BlockChild = {
-    _type?: string
-    text?: string
-}
-
-type PortableTextBlock = {
-    _key?: string
-    _type?: string
-    style?: string
-    children?: BlockChild[]
-}
-
-type NewsDetails = {
-    _id: string
-    title?: string
-    publishedAt?: string
-    content?: PortableTextBlock[]
-    externalLink?: string
-}
 
 export default async function NewsDetailsPage({
     params,
@@ -50,7 +32,7 @@ export default async function NewsDetailsPage({
     if (!article) {
         notFound()
     }
-    const formattedDate = formatDate(article.publishedAt)
+    const formattedDate = formatDisplayDate(article.publishedAt, "Date unavailable")
     const contentBlocks = Array.isArray(article.content) ? article.content : []
 
     return (
@@ -114,16 +96,4 @@ export default async function NewsDetailsPage({
             </div>
         </section>
   )
-}
-
-function formatDate(value?: string) {
-    if (!value) return "Date unavailable"
-    const parsedDate = new Date(value)
-    if (Number.isNaN(parsedDate.getTime())) return "Date unavailable"
-
-    return parsedDate.toLocaleDateString("en-CA", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-    })
 }

@@ -3,14 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-
-type EventItem = {
-  title: string | null
-  date: string | null
-  location: string | null
-  startTime?: string | null
-  experienceClass?: string | null
-}
+import type { EventItem } from "@/lib/types/content"
 
 export default function EventsSection() {
   const [events, setEvents] = useState<EventItem[]>([])
@@ -48,7 +41,7 @@ export default function EventsSection() {
     loadEvents()
   }, [])
 
-  const formatDate = (dateValue: string | null) => {
+  const formatDate = (dateValue?: string | null) => {
     if (!dateValue) return "Date TBA"
     const parsedDate = new Date(dateValue)
     if (Number.isNaN(parsedDate.getTime())) return "Date TBA"

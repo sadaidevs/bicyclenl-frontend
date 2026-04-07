@@ -5,16 +5,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { urlFor } from "@/lib/sanity/image"
-
-type NewsItem = {
-    _id: string
-    slug?: string
-    title?: string
-    excerpt?: string
-    publishedAt?: string
-    featuredImage?: any
-    externalLink?: string
-}
+import { formatDate as formatDisplayDate } from "@/lib/dateUtils"
+import type { NewsItem } from "@/lib/types/content"
 
 export default function NewsSection() {
     const [news, setNews] = useState<NewsItem[]>([])
@@ -55,17 +47,6 @@ export default function NewsSection() {
         loadNews()
     }, [])
 
-    const formatDate = (value?: string) => {
-        if (!value) return ""
-        const d = new Date(value)
-        if (Number.isNaN(d.getTime())) return ""
-        return d.toLocaleDateString("en-CA", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        })
-    }
-
   return (
     <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-6">
@@ -78,6 +59,14 @@ export default function NewsSection() {
                         className="overflow-hidden rounded-xl cursor-pointer transition hover:shadow-lg"
                     >
                         <Card className="h-full">
+                            <CardContent className="p-4">
+                                <h3 className="font-semibold text-lg">{item.title || "Untitled News"}</h3>
+                                {formatDisplayDate(item.publishedAt, "") && (
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        {formatDisplayDate(item.publishedAt, "")}
+                                    </p>
+                                )}
+                            </CardContent>
                             {item.featuredImage && (
                                 <div className="relative w-full h-48">
                                     <Image
@@ -88,19 +77,13 @@ export default function NewsSection() {
                                     />
                                 </div>
                             )}
-                            <CardContent className="p-4">
-                                <h3 className="font-semibold text-lg">{item.title || "Untitled News"}</h3>
-                                {item.excerpt && (
-                                    <p className="text-sm text-gray-600 mt-2">
-                                        {item.excerpt}
+                            {!item.featuredImage && (
+                                <div className="h-48 bg-gray-50 p-4 text-sm text-gray-600">
+                                    <p className="h-full overflow-hidden leading-6">
+                                        {item.excerpt || "No excerpt available."}
                                     </p>
-                                )}
-                                {formatDate(item.publishedAt) && (
-                                    <p className="text-xs text-gray-400 mt-3">
-                                        {formatDate(item.publishedAt)}
-                                    </p>
-                                )}
-                            </CardContent>
+                                </div>
+                            )}
                         </Card>
                     </Link>
                 ))}

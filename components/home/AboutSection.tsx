@@ -5,14 +5,10 @@ import Link from "next/link"
 import { JSX } from "react"
 import { FaFacebookF, FaInstagram } from "react-icons/fa"
 import { FaXTwitter } from "react-icons/fa6"
+import type { PostItem } from "@/lib/types/content"
 
 type SocialName = "Facebook" | "X" | "Instagram"
-type PostItem = {
-	_id: string
-	title?: string
-	publishedAt?: string
-	externalLink?: string
-}
+
 
 export default function AboutSection() {
 	const [posts, setPosts] = useState<PostItem[]>([])
@@ -140,26 +136,23 @@ export default function AboutSection() {
 				<h4 className="text-lg font-semibold mb-3">Recent Posts</h4>
 				<ul className="space-y-4 text-sm">
 					{posts.map((post) => (
-						<li
-							key={post._id}
-							className="flex gap-3 group cursor-pointer hover:opacity-80 transition"
-							onClick={() => {
-								if (post.externalLink) {
-									window.open(post.externalLink, "_blank")
-								}
-							}}
-						>
-							<span className="w-3 h-3 bg-white/80 rounded mt-1 group-hover:bg-red-400 transition" />
-							<div>
-								<div className="font-medium group-hover:text-red-400 transition">
-									{post.title || "Untitled Post"}
-								</div>
-								{formatDate(post.publishedAt) && (
-									<div className="text-xs opacity-80">
-										{formatDate(post.publishedAt)}
+						<li key={post._id}>
+							<Link
+								href={`/news/${post.slug || post._id}`}
+								className="flex gap-3 group hover:opacity-80 transition"
+							>
+								<span className="w-3 h-3 bg-white/80 rounded mt-1 group-hover:bg-red-400 transition" />
+								<div>
+									<div className="font-medium group-hover:text-red-400 transition">
+										{post.title || "Untitled Post"}
 									</div>
-								)}
-							</div>
+									{formatDate(post.publishedAt) && (
+										<div className="text-xs opacity-80">
+											{formatDate(post.publishedAt)}
+										</div>
+									)}
+								</div>
+							</Link>
 						</li>
 					))}
 				</ul>
