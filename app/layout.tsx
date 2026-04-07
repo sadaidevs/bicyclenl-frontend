@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AboutSection from "@/components/home/AboutSection";
+import { AboutContactProvider } from "@/components/home/AboutContactContext";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -35,10 +36,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <AboutSection />
-        <Footer />
+        <AboutContactProvider>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <AboutSection />
+          <Footer />
+        </AboutContactProvider>
       </body>
     </html>
   )
