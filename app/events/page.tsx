@@ -6,6 +6,7 @@ import EventsCalendar from "@/app/events/EventsCalendar"
 import PaginationControls from "@/components/ui/pagination-controls"
 import { buildSearchText, matchesDateRange, normalizeQuery } from "@/lib/filters/filterUtils"
 import type { EventItem } from "@/lib/types/content"
+import NewsSection from "@/components/home/NewsSection"
 
 const PAGE_SIZE = 5
 
@@ -458,6 +459,7 @@ export default function EventsPage() {
           </aside>
         </div>
       </div>
+      <NewsSection />
     </section>
   )
 }
