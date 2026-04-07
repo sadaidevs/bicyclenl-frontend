@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import type { EventItem } from "@/lib/types/content"
+import { formatDate as formatEventDate, formatTime, parseEventDate } from "@/lib/dateUtils"
 
 export default function EventsSection() {
   const [events, setEvents] = useState<EventItem[]>([])
@@ -20,7 +21,7 @@ export default function EventsSection() {
         const sortedUpcomingEvents = upcomingEvents
           .filter((event: EventItem) => {
             if (!event.date) return false
-            const eventDate = new Date(event.date)
+            const eventDate = parseEventDate(event.date)
             if (Number.isNaN(eventDate.getTime())) return false
             const today = new Date()
             today.setHours(0, 0, 0, 0)
@@ -28,8 +29,8 @@ export default function EventsSection() {
             return eventDate >= today
           })
           .sort((firstEvent: EventItem, secondEvent: EventItem) => {
-            const firstDate = new Date(firstEvent.date ?? "")
-            const secondDate = new Date(secondEvent.date ?? "")
+            const firstDate = parseEventDate(firstEvent.date ?? "")
+            const secondDate = parseEventDate(secondEvent.date ?? "")
             return firstDate.getTime() - secondDate.getTime()
           })
           .slice(0, 5)
@@ -42,24 +43,12 @@ export default function EventsSection() {
   }, [])
 
   const formatDate = (dateValue?: string | null) => {
-    if (!dateValue) return "Date TBA"
-    const parsedDate = new Date(dateValue)
-    if (Number.isNaN(parsedDate.getTime())) return "Date TBA"
-    return parsedDate.toLocaleDateString("en-CA", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
+    return formatEventDate(dateValue, "Date TBA")
   }
 
   const formatStartTime = (startTime?: string | null) => {
-    if (!startTime) return null
-    const parsedTime = new Date(startTime)
-    if (Number.isNaN(parsedTime.getTime())) return null
-    return parsedTime.toLocaleTimeString("en-CA", {
-      hour: "numeric",
-      minute: "2-digit",
-    })
+    const formattedTime = formatTime(startTime)
+    return formattedTime || null
   }
 
   return (

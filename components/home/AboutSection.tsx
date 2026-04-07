@@ -90,74 +90,78 @@ export default function AboutSection() {
 	}
 
   return (
-    <section className="bg-gradient-to-b from-sky-900 via-blue-900 to-blue-800 text-white py-12">
-    	<div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-			<div>
-				<h3 className="text-lg font-semibold mb-4">{data.title}</h3>
-				<img
-					src={data.logo}
-					alt="Bicycle NL"
-					className="w-36 h-auto mb-4"
-				/>
-				<p className="text-sm text-white/90 mb-4">
-					{data.description}
-				</p>
-				<div className="flex gap-3">
-					{data.socials.map((s) => (
-						<a
-							key={s.name}
-							href={s.href}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="w-9 h-9 rounded-md bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
-						>
-							{icons[s.name]}
-						</a>
-					))}
-				</div>
-        	</div>
-			<div>
-				<h4 className="text-lg font-semibold mb-3">Helpful Links</h4>
-				<ul className="space-y-2 text-sm">
-					{data.links.map((link) => (
-					<li key={link.label} className="flex gap-3">
-						<span className="text-emerald-300">✓</span>
-						<Link
-							href={link.href}
-							className="underline hover:text-red-400 transition"
-						>
-							{link.label}
-						</Link>
-					</li>
-					))}
-				</ul>
-			</div>
-			<div>
-				<h4 className="text-lg font-semibold mb-3">Recent Posts</h4>
-				<ul className="space-y-4 text-sm">
-					{posts.map((post) => (
-						<li key={post._id}>
-							<Link
-								href={`/news/${post.slug || post._id}`}
-								className="flex gap-3 group hover:opacity-80 transition"
+	<section className="bg-linear-to-b from-sky-900 via-blue-900 to-blue-800 py-10 text-white sm:py-12">
+		<div className="mx-auto max-w-6xl px-4 sm:px-6">
+			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+				<div className="rounded-2xl border border-white/10 bg-white/8 p-5 shadow-lg shadow-black/10 backdrop-blur-sm sm:col-span-2 lg:col-span-1">
+					<h3 className="mb-4 text-lg font-semibold sm:text-xl">{data.title}</h3>
+					<img
+						src={data.logo}
+						alt="Bicycle NL"
+						className="mb-4 h-auto w-28 sm:w-32"
+					/>
+					<p className="mb-4 max-w-md text-sm leading-6 text-white/90 sm:text-base">
+						{data.description}
+					</p>
+					<div className="flex flex-wrap gap-3">
+						{data.socials.map((s) => (
+							<a
+								key={s.name}
+								href={s.href}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="flex h-9 w-9 items-center justify-center rounded-md bg-white/10 transition hover:bg-white/20"
 							>
-								<span className="w-3 h-3 bg-white/80 rounded mt-1 group-hover:bg-red-400 transition" />
-								<div>
-									<div className="font-medium group-hover:text-red-400 transition">
-										{post.title || "Untitled Post"}
-									</div>
-									{formatDate(post.publishedAt) && (
-										<div className="text-xs opacity-80">
-											{formatDate(post.publishedAt)}
+								{icons[s.name]}
+							</a>
+						))}
+					</div>
+				</div>
+
+				<div className="rounded-2xl border border-white/10 bg-white/8 p-5 shadow-lg shadow-black/10 backdrop-blur-sm">
+					<h4 className="mb-3 text-lg font-semibold sm:text-xl">Helpful Links</h4>
+					<ul className="space-y-3 text-sm sm:text-base">
+						{data.links.map((link) => (
+							<li key={link.label} className="flex items-start gap-3">
+								<span className="mt-0.5 text-emerald-300">✓</span>
+								<Link
+									href={link.href}
+									className="underline decoration-white/40 underline-offset-4 transition hover:text-red-400"
+								>
+									{link.label}
+								</Link>
+							</li>
+						))}
+					</ul>
+				</div>
+
+				<div className="rounded-2xl border border-white/10 bg-white/8 p-5 shadow-lg shadow-black/10 backdrop-blur-sm sm:col-span-2 lg:col-span-1">
+					<h4 className="mb-3 text-lg font-semibold sm:text-xl">Recent Posts</h4>
+					<ul className="space-y-4 text-sm sm:text-base">
+						{posts.map((post) => (
+							<li key={post._id}>
+								<Link
+									href={`/news/${post.slug || post._id}`}
+									className="group flex items-start gap-3 transition hover:opacity-80"
+								>
+									<span className="mt-1 h-3 w-3 shrink-0 rounded bg-white/80 transition group-hover:bg-red-400" />
+									<div>
+										<div className="font-medium transition group-hover:text-red-400">
+											{post.title || "Untitled Post"}
 										</div>
-									)}
-								</div>
-							</Link>
-						</li>
-					))}
-				</ul>
+										{formatDate(post.publishedAt) && (
+											<div className="text-xs opacity-80 sm:text-sm">
+												{formatDate(post.publishedAt)}
+											</div>
+										)}
+									</div>
+								</Link>
+							</li>
+						))}
+					</ul>
+				</div>
 			</div>
-      	</div>
-    </section>
-  )
+		</div>
+	</section>
+	)
 }
