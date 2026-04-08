@@ -10,7 +10,6 @@ import NewsSection from "@/components/home/NewsSection"
 import EventExpandableCard from "@/app/events/EventExpandableCard"
 import FormsSection from "./FormsSection"
 import ResultsSection from "./ResultsSection"
-import { useSetAboutContact } from "@/components/home/AboutContactContext"
 
 const PAGE_SIZE = 5
 type EventTab = "today" | "upcoming" | "past" | "tba"
@@ -25,8 +24,6 @@ function hasValidEventDate(event: EventItem) {
 }
 
 export default function EventsPage() {
-  useSetAboutContact("event", "events@bicyclenl.com")
-
   const [events, setEvents] = useState<EventItem[]>([])
   const [activeTab, setActiveTab] = useState<EventTab>("today")
   const [tabPages, setTabPages] = useState<TabPages>({

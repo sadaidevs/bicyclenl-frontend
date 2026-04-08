@@ -99,7 +99,7 @@ export default function AnnualGeneralMeetingSection() {
   }, [currentPage, totalPages])
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-inherit">
       <div className="max-w-5xl mx-auto">
         <div className="mb-10">
           <h2 className="text-5xl font-bold tracking-tight text-gray-900">Annual General Meeting</h2>

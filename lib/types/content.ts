@@ -69,6 +69,8 @@ export type Page = {
   title?: string
   slug?: { current: string }
   sections?: PageSectionItem[]
+}
+
 export type EventResultItem = {
   _id?: string
   eventTitle?: string | null

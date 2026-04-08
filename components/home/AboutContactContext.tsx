@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react"
+import { usePathname } from "next/navigation"
 
 export type AboutContactInfo = {
   label: string
@@ -15,7 +16,34 @@ type AboutContactContextValue = {
 const AboutContactContext = createContext<AboutContactContextValue | null>(null)
 
 export function AboutContactProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
   const [contact, setContact] = useState<AboutContactInfo | null>(null)
+
+  useEffect(() => {
+    const segment = pathname?.split("/").filter(Boolean)[0] || "home"
+    let cancelled = false
+
+    async function loadPageContact() {
+      try {
+        const response = await fetch(`/api/about-contact?page=${encodeURIComponent(segment)}`)
+        if (!response.ok) {
+          if (!cancelled) setContact(null)
+          return
+        }
+        const data = await response.json()
+        if (!cancelled) {
+          setContact(data?.contact || null)
+        }
+      } catch {
+        if (!cancelled) setContact(null)
+      }
+    }
+
+    loadPageContact()
+    return () => {
+      cancelled = true
+    }
+  }, [pathname])
 
   const value = useMemo(() => ({ contact, setContact }), [contact])
 
