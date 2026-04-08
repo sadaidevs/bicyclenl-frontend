@@ -9,6 +9,7 @@ import type { EventItem } from "@/lib/types/content"
 import NewsSection from "@/components/home/NewsSection"
 import EventExpandableCard from "@/app/events/EventExpandableCard"
 import FormsSection from "./FormsSection"
+import ResultsSection from "./ResultsSection"
 import { useSetAboutContact } from "@/components/home/AboutContactContext"
 
 const PAGE_SIZE = 5
@@ -439,6 +440,7 @@ export default function EventsPage() {
           </aside>
         </div>
       </div>
+      <ResultsSection />
       <FormsSection />
       <NewsSection />
     </section>
