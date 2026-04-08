@@ -47,3 +47,9 @@ export type NewsDetails = {
   externalLink?: string
 }
 
+export type EventResultItem = {
+  _id?: string
+  eventTitle?: string | null
+  resultLink?: string | null
+}
+
