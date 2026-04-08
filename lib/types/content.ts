@@ -47,6 +47,28 @@ export type NewsDetails = {
   externalLink?: string
 }
 
+export type LinkItem = {
+  label?: string | null
+  url?: string | null
+}
+
+export type Section = {
+  _key?: string
+  _type: 'section'
+  title?: string
+  heading?: string
+  body?: PortableTextBlock[]
+  [key: string]: any
+}
+
+export type PageSectionItem = Section | { _key?: string; _ref?: string; _type: 'reference' }
+
+export type Page = {
+  _id: string
+  _type: 'page'
+  title?: string
+  slug?: { current: string }
+  sections?: PageSectionItem[]
 export type EventResultItem = {
   _id?: string
   eventTitle?: string | null
