@@ -199,52 +199,10 @@ export default function ExpandableSection({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded)
   const contentBlockCount = section.body?.length || 0
   const shouldBeExpandable = contentBlockCount > 5
-  const sectionKey = (section.heading || section.title || "").toLowerCase()
-  const colors: Record<
-    string,
-    { bg: string; text: string; heading: string; accent: string; isDark: boolean }
-  > = {
-    about: {
-      bg: "bg-white",
-      text: "text-gray-800",
-      heading: "text-gray-900",
-      accent: "pink",
-      isDark: false,
-    },
-    "strategic plan": {
-      bg: "bg-gray-50",
-      text: "text-gray-800",
-      heading: "text-gray-900",
-      accent: "pink",
-      isDark: false,
-    },
-    policies: {
-      bg: "bg-white",
-      text: "text-gray-800",
-      heading: "text-gray-900",
-      accent: "cyan",
-      isDark: false,
-    },
-    "financial reports": {
-      bg: "bg-gray-50",
-      text: "text-gray-800",
-      heading: "text-gray-900",
-      accent: "pink",
-      isDark: false,
-    },
-    "annual general meeting": {
-      bg: "bg-white",
-      text: "text-gray-800",
-      heading: "text-gray-900",
-      accent: "pink",
-      isDark: false,
-    },
-  }
-  const selectedColors = colors[sectionKey] || colors["about"]
   return (
-    <section className={`py-20 px-4 sm:px-6 lg:px-8 ${selectedColors.bg}`}>
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-inherit">
       <div className="max-w-5xl mx-auto">
-        <div className={`mb-6 ${selectedColors.heading}`}>
+        <div className="mb-6 text-gray-900">
           {section.heading && (
             <div className="mb-4">
               <h2 className="text-5xl font-bold tracking-tight text-gray-900">
@@ -253,11 +211,6 @@ export default function ExpandableSection({
               <div className="h-1 w-24 mt-4 rounded-full bg-red-500"></div>
             </div>
           )}
-          {section.title &&
-            section.title.trim().toLowerCase() !==
-              section.heading?.trim().toLowerCase() && (
-              <p className="text-xl font-medium text-gray-700">{section.title}</p>
-            )}
         </div>
         <div
           className={`relative transition-all duration-300 ${
@@ -265,8 +218,8 @@ export default function ExpandableSection({
           }`}
         >
           {section.body && section.body.length > 0 && (
-            <div className={`mt-2 ${selectedColors.text} prose prose-lg max-w-none`}>
-              {renderPortableText(section.body, selectedColors.isDark, uniqueId)}
+            <div className="mt-2 text-gray-800 prose prose-lg max-w-none">
+              {renderPortableText(section.body, false, uniqueId)}
             </div>
           )}
           {!isExpanded && shouldBeExpandable && (
