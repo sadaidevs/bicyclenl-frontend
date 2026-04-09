@@ -13,7 +13,7 @@ export const navLinks: NavLinkItem[] = [
   { name: "Membership", href: "/membership" },
   { name: "Athelete Performance / Development", href: "/athlete-performance-and-development" },
   { name: "Events", href: "/events" },
-  { name: "Coaching / Officials / Training", href: "/coaching-officials" },
+  { name: "Coaching / Officials / Training", href: "/coaching-and-officials" },
   { name: "News", href: "/news" },
   { name: "Contact", href: "/contact" },
   { name: "Company Overview", href: "/company" },
