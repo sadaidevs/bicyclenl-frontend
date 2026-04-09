@@ -5,7 +5,7 @@ import type { PageSectionItem, Section } from "@/lib/types/content"
 import ExpandableSection from "@/app/company/ExpandableSection"
 import PipeTableSection from "@/components/sections/PipeTableSection"
 
-interface PageSectionRendererProps {
+interface Props {
   section: PageSectionItem
   TextSectionComponent?: ComponentType<{ section: Section }>
   TableSectionComponent?: ComponentType<{ section: Section }>
@@ -13,21 +13,17 @@ interface PageSectionRendererProps {
   renderSpecialSection?: (section: Section) => ReactNode | null
 }
 
+function getSectionId(section: Section) {
+  const base = section.heading || section.title || ""
+  return base.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+}
+
 function defaultIsTableSection(section: Section) {
   if (!Array.isArray(section.body)) return false
-
   return section.body.some((block: any) => {
-    if (!block || block._type !== "block") return false
-
-    const text =
-      block.children?.map((c: any) => c?.text || "").join("") || ""
-
-    return text
-      .split("\n")
-      .some((line: string) => {
-        const trimmed = line.trim()
-        return trimmed.startsWith("|") && trimmed.endsWith("|")
-      })
+    if (block?._type !== "block") return false
+    const text = block.children?.map((c: any) => c?.text || "").join("") || ""
+    return text.split("\n").some((l: string) => l.trim().startsWith("|"))
   })
 }
 
@@ -37,19 +33,27 @@ export default function PageSectionRenderer({
   TableSectionComponent = PipeTableSection,
   isTableSection = defaultIsTableSection,
   renderSpecialSection,
-}: PageSectionRendererProps) {
-  if (!section || typeof section === "string") return null
-  if (section._type === "reference") return null
-  if (!section.title && !section.heading && !section.body) return null
+}: Props) {
+  if (!section || section._type === "reference") return null
 
   if (renderSpecialSection) {
     const special = renderSpecialSection(section)
     if (special) return special
   }
 
+  const id = getSectionId(section)
+
   if (isTableSection(section)) {
-    return <TableSectionComponent section={section} />
+    return (
+      <div id={id}>
+        <TableSectionComponent section={section} />
+      </div>
+    )
   }
 
-  return <TextSectionComponent section={section} />
+  return (
+    <div id={id}>
+      <TextSectionComponent section={section} />
+    </div>
+  )
 }

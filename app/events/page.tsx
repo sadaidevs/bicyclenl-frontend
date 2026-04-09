@@ -417,7 +417,7 @@ export default function EventsPage() {
               )}
             </div>
           </div>
-          <aside className="space-y-4 lg:col-span-1">
+          <aside id="calendar" className="space-y-4 lg:col-span-1">
             <EventsCalendar
               currentMonth={currentMonth}
               selectedDateKey={onDate}
@@ -437,8 +437,13 @@ export default function EventsPage() {
           </aside>
         </div>
       </div>
-      <ResultsSection />
-      <FormsSection />
+      <div id="results">
+        <ResultsSection />
+      </div>
+
+      <div id="forms">
+        <FormsSection />
+      </div>
       <NewsSection />
     </section>
   )

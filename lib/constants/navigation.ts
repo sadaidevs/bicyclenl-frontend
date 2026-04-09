@@ -11,7 +11,7 @@ export type NavDropdownItem = {
 export const navLinks: NavLinkItem[] = [
   { name: "Home", href: "/" },
   { name: "Membership", href: "/membership" },
-  { name: "Athelete Performance / Development", href: "/athlete-performance-and-development" },
+  { name: "Athlete Performance / Development", href: "/athlete-performance-and-development" },
   { name: "Events", href: "/events" },
   { name: "Coaching / Officials / Training", href: "/coaching-and-officials" },
   { name: "News", href: "/news" },
@@ -19,34 +19,42 @@ export const navLinks: NavLinkItem[] = [
   { name: "Company Overview", href: "/company" },
 ]
 
-export const aboutItems: NavDropdownItem[] = [
-  { label: "Mission", href: "/about/#mission" },
-  { label: "Board", href: "/about/#board" },
-  { label: "Strategic Plan", href: "/about/#strategic_plan" },
-  { label: "Policies", href: "/about/#policies" },
-  { label: "AGM", href: "/about/#agm" },
-  { label: "Advocacy", href: "/about/#advocacy" },
-  { label: "Volunteers", href: "/about/#volunteers" },
+export const companyItems: NavDropdownItem[] = [
+  { label: "About", href: "/company#about" },
+  { label: "Strategic Plan", href: "/company#strategic-plan" },
+  { label: "Policies", href: "/company#policies" },
+  { label: "Financial Reports", href: "/company#financial-reports" },
+  { label: "Annual General Meeting", href: "/company#annual-general-meeting" },
 ]
 
 export const membershipItems: NavDropdownItem[] = [
-  { label: "Benefits", href: "/membership/#benefits" },
-  { label: "Registration", href: "/membership/#registration" },
+  { label: "Membership Categories", href: "/membership#membership-categories-table" },
+  { label: "Insurance", href: "/membership#insurance" },
+  { label: "Member Benefits", href: "/membership#member-benefits" },
+  { label: "Contact", href: "/membership#contact" },
 ]
 
-
-
 export const eventsItems: NavDropdownItem[] = [
-  { label: "Calendar", href: "/nl-events/#calendar" },
-  { label: "Approved vs. Sanctioned", href: "/nl-events/#approved_sanctioned" },
-  { label: "Organizing Competitive Events", href: "/nl-events/#organizing" },
-  { label: "Results", href: "/nl-events/#results" },
-  { label: "Group Rides", href: "/nl-events/#group_rides" },
-  { label: "Forms", href: "/nl-events/#forms" },
+  { label: "Calendar", href: "/events#calendar" },
+  { label: "Results", href: "/events#results" },
+  { label: "Forms", href: "/events#forms" },
 ]
 
 export const coachingItems: NavDropdownItem[] = [
-  { label: "Coaching", href: "/coaching-officials/" },
-  { label: "Officials (Commissaires)", href: "/coaching-officials/#officials" },
+  { label: "Coaching", href: "/coaching-and-officials#coaching" },
+  { label: "Officials (Commissaires)", href: "/coaching-and-officials#commissionaire" },
+  { label: "Caravan Driver", href: "/coaching-and-officials#caravan-driver" },
+  { label: "Contact", href: "/coaching-and-officials#contact" },
 ]
 
+export const athleteItems: NavDropdownItem[] = [
+  { label: "Cycling Activity", href: "/athlete-performance-and-development#cycling-activity" },
+  { label: "Canada Summer Games", href: "/athlete-performance-and-development#canada-summer-games" },
+  { label: "Contact", href: "/athlete-performance-and-development#contact" },
+]
+
+export const contactItems: NavDropdownItem[] = [
+  { label: "Contact Email", href: "/contact#contact-email-table" },
+  { label: "Mailing Address", href: "/contact#mailing-address" },
+  { label: "Board of Directors", href: "/contact#board-of-directors" },
+]
