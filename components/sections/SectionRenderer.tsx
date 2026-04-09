@@ -7,35 +7,25 @@ import PoliciesSection from "@/app/company/PoliciesSection"
 import FinancialReportsSection from "@/app/company/FinancialReportsSection"
 import AnnualGeneralMeetingSection from "@/app/company/AnnualGeneralMeetingSection"
 
-interface Props {
-  section: PageSectionItem
-  slug: string
-}
-
-export default function SectionRenderer({ section, slug }: Props) {
+export default function SectionRenderer({ section, slug }: any) {
   return (
     <PageSectionRenderer
       section={section}
-      renderSpecialSection={(resolvedSection) => {
-        const title = resolvedSection.title?.toLowerCase() || ""
-        const heading = resolvedSection.heading?.toLowerCase() || ""
+      renderSpecialSection={(s) => {
+        const text = `${s.title || ""} ${s.heading || ""}`.toLowerCase()
 
         if (slug === "company") {
-          if (title.includes("policies") || heading.includes("policies")) {
-            return <PoliciesSection />
+          if (text.includes("policies")) {
+            return <div id="policies"><PoliciesSection /></div>
           }
-          if (title.includes("financial report") || heading.includes("financial report")) {
-            return <FinancialReportsSection />
+          if (text.includes("financial report")) {
+            return <div id="financial-reports"><FinancialReportsSection /></div>
           }
-          if (
-            title.includes("annual general meeting") ||
-            heading.includes("annual general meeting") ||
-            title === "agm" ||
-            heading === "agm"
-          ) {
-            return <AnnualGeneralMeetingSection />
+          if (text.includes("annual general meeting") || text.includes("agm")) {
+            return <div id="annual-general-meeting"><AnnualGeneralMeetingSection /></div>
           }
         }
+
         return null
       }}
     />

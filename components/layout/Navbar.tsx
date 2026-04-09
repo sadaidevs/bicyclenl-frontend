@@ -8,17 +8,21 @@ import { Button } from "@/components/ui/button"
 import HoverDropdown from "@/components/layout/HoverDropdown"
 import {
 	navLinks,
-	aboutItems,
+	companyItems,
 	membershipItems,
 	eventsItems,
 	coachingItems,
+	athleteItems,
+	contactItems,
 } from "@/lib/constants/navigation"
 
 const dropdownItemsByLink: Record<string, { label: string; href: string }[]> = {
-	About: aboutItems,
+	"Company Overview": companyItems,
 	Membership: membershipItems,
 	Events: eventsItems,
-	"Coaching / Officials": coachingItems,
+	"Coaching / Officials / Training": coachingItems,
+	"Athlete Performance / Development": athleteItems,
+	Contact: contactItems,
 }
 
 export default function Navbar() {
