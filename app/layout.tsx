@@ -4,7 +4,6 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AboutSection from "@/components/home/AboutSection";
-import { AboutContactProvider } from "@/components/home/AboutContactContext";
 
 const headingFont = Lora({
   variable: "--font-lora",
@@ -44,12 +43,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${bodyFont.variable} ${headingFont.variable} ${geistMono.variable} min-h-screen flex flex-col`}>
-        <AboutContactProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
           <AboutSection />
           <Footer />
-        </AboutContactProvider>
       </body>
     </html>
   )
