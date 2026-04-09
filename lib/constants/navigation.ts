@@ -11,7 +11,7 @@ export type NavDropdownItem = {
 export const navLinks: NavLinkItem[] = [
   { name: "Home", href: "/" },
   { name: "Membership", href: "/membership" },
-  { name: "Athelete Performance / Development", href: "/development" },
+  { name: "Athelete Performance / Development", href: "/athlete-performance-and-development" },
   { name: "Events", href: "/events" },
   { name: "Coaching / Officials / Training", href: "/coaching-officials" },
   { name: "News", href: "/news" },
@@ -34,16 +34,7 @@ export const membershipItems: NavDropdownItem[] = [
   { label: "Registration", href: "/membership/#registration" },
 ]
 
-export const developmentItems: NavDropdownItem[] = [
-  { label: "Youth Cycling", href: "/development/#youth_cycling" },
-  { label: "Older Adults", href: "/development/#older_adults" },
-  { label: "Eastern Region", href: "/development/#eastern_region" },
-  { label: "Western Region", href: "/development/#western_region" },
-  { label: "Women’s Cycling", href: "/development/#womens_cycling" },
-  { label: "Para-Cycling", href: "/development/#paracycling" },
-  { label: "Central Region", href: "/development/#central_region" },
-  { label: "Labrador Region", href: "/development/#labrador_region" },
-]
+
 
 export const eventsItems: NavDropdownItem[] = [
   { label: "Calendar", href: "/nl-events/#calendar" },

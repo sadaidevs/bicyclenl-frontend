@@ -6,14 +6,12 @@ import { JSX } from "react"
 import { FaFacebookF, FaInstagram } from "react-icons/fa"
 import { FaXTwitter } from "react-icons/fa6"
 import type { PostItem } from "@/lib/types/content"
-import { useAboutContact } from "@/components/home/AboutContactContext"
 
 type SocialName = "Facebook" | "X" | "Instagram"
 
 
 export default function AboutSection() {
 	const [posts, setPosts] = useState<PostItem[]>([])
-	const { contact } = useAboutContact()
 	useEffect(() => {
 		async function loadPosts() {
 			try {
@@ -118,17 +116,6 @@ export default function AboutSection() {
 							</a>
 						))}
 					</div>
-					{contact ? (
-						<p className="mt-4 text-sm text-white/90 sm:text-base">
-							Contact for {contact.label} questions:{" "}
-							<a
-								href={`mailto:${contact.email}`}
-								className="font-semibold underline decoration-white/40 underline-offset-4 transition hover:text-red-400"
-							>
-								{contact.email}
-							</a>
-						</p>
-					) : null}
 				</div>
 
 				<div className="rounded-2xl border border-white/10 bg-white/8 p-5 shadow-lg shadow-black/10 backdrop-blur-sm">

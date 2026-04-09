@@ -1,9 +1,13 @@
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
+
 import { client } from "@/lib/sanity/sanity"
 import type { Page } from "@/lib/types/content"
+
 import SectionRenderer from "@/components/sections/SectionRenderer"
 import NewsSection from "@/components/home/NewsSection"
 
+// ✅ Fetch page
 async function getPage(slug: string): Promise<Page | null> {
   const query = `*[_type == "page" && slug.current == $slug][0] {
     _id,
@@ -25,31 +29,53 @@ async function getPage(slug: string): Promise<Page | null> {
   }
 }
 
+// ✅ Metadata (FIXED for Next 15)
 export async function generateMetadata(
-  props: { params: Promise<{ slug: string }> }
+  props: { params: Promise<{ slug: string[] }> }
 ): Promise<Metadata> {
   const { slug } = await props.params
-  const page = await getPage(slug)
+  const slugArray = slug || []
+
+  const parentSlug = slugArray[0]
+  if (!parentSlug) return { title: "Page" }
+
+  const page = await getPage(parentSlug)
+
   return {
-    title: page?.title || slug,
-    description: `Page for ${slug}`,
+    title: page?.title || parentSlug,
+    description: `Page for ${slugArray.join("/")}`,
   }
 }
 
+// ✅ Main Page
 export default async function DynamicPage(
-  props: { params: Promise<{ slug: string }> }
+  props: { params: Promise<{ slug: string[] }> }
 ) {
   const { slug } = await props.params
-  const page = await getPage(slug)
-  if (!page) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Page "{slug}" not found
-      </div>
-    )
+  const slugArray = slug || []
+
+  const parentSlug = slugArray[0]
+  const childSlug = slugArray[1] || null
+
+  if (!parentSlug) return notFound()
+
+  const page = await getPage(parentSlug)
+  if (!page) return notFound()
+
+  let sections = page.sections || []
+
+  // ✅ Filter for child routes (optional)
+  if (childSlug) {
+    const normalized = childSlug.replace("-", " ")
+
+    sections = sections.filter((section: any) => {
+      const content = `${section?.title || ""} ${section?.heading || ""}`.toLowerCase()
+      return content.includes(normalized)
+    })
   }
 
-  const sectionCount = page.sections?.length || 0
+  const sectionCount = sections.length
+
   const nextSectionClass =
     sectionCount % 2 === 0
       ? "[&>section]:!bg-white"
@@ -57,18 +83,21 @@ export default async function DynamicPage(
 
   return (
     <main className="min-h-screen">
+      {/* ✅ TITLE (restored) */}
       <div className="mx-auto max-w-6xl px-4 pt-10 pb-6">
         <h1 className="text-3xl font-bold text-gray-900">
-          {getCustomTitle(slug, page.title || "")}
+          {getCustomTitle(parentSlug, page.title || "", childSlug)}
         </h1>
       </div>
-      {page.sections?.length ? (
-        page.sections.map((section, index) => {
+
+      {/* ✅ SECTIONS (with alternating backgrounds) */}
+      {sections.length ? (
+        sections.map((section, index) => {
           const key =
             (section as any)._key ||
-            (section as any)._id ||
             (section as any)._ref ||
             index
+
           const rowClass =
             index % 2 === 0
               ? "[&>section]:!bg-white"
@@ -76,7 +105,7 @@ export default async function DynamicPage(
 
           return (
             <div key={key} className={rowClass}>
-              <SectionRenderer section={section} slug={slug} />
+              <SectionRenderer section={section} slug={parentSlug} />
             </div>
           )
         })
@@ -85,6 +114,8 @@ export default async function DynamicPage(
           No sections found
         </div>
       )}
+
+      {/* ✅ NEWS SECTION (restored) */}
       <div className={nextSectionClass}>
         <NewsSection />
       </div>
@@ -92,12 +123,29 @@ export default async function DynamicPage(
   )
 }
 
-function getCustomTitle(slug: string, fallback: string) {
+// ✅ Title logic (enhanced)
+function getCustomTitle(
+  slug: string,
+  fallback: string,
+  childSlug?: string | null
+) {
   const map: Record<string, string> = {
     contact: "Contact Us For More Information",
     membership: "Join Us To Enjoy Cycling",
-    company: "About Bicycle NL", 
+    company: "About Bicycle NL",
+  }
+
+  if (childSlug) {
+    return formatSlug(childSlug)
   }
 
   return map[slug] || fallback
+}
+
+// ✅ Helper
+function formatSlug(slug: string) {
+  return slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
 }

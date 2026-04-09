@@ -10,7 +10,6 @@ import {
 	navLinks,
 	aboutItems,
 	membershipItems,
-	developmentItems,
 	eventsItems,
 	coachingItems,
 } from "@/lib/constants/navigation"
@@ -18,7 +17,6 @@ import {
 const dropdownItemsByLink: Record<string, { label: string; href: string }[]> = {
 	About: aboutItems,
 	Membership: membershipItems,
-	Development: developmentItems,
 	Events: eventsItems,
 	"Coaching / Officials": coachingItems,
 }
