@@ -17,27 +17,39 @@ function normalizeRowCells(line: string) {
   return cells
 }
 
-function parsePipeTableRows(body: any[]) {
-  if (!Array.isArray(body)) return [] as string[][]
-
-  const rows: string[][] = []
-
-  for (const block of body) {
-    if (!block || block._type !== "block" || !Array.isArray(block.children)) continue
-
-    const text = block.children.map((child: any) => child?.text || "").join("")
-    if (!text || !text.includes("|")) continue
-
-    const lineRows = text
-      .split("\n")
-      .map((line: string) => line.trim())
-      .filter((line: string) => line.startsWith("|") && line.endsWith("|"))
-      .map((line: string) => normalizeRowCells(line))
-      .filter((cells: string[]) => cells.length > 0)
-
-    rows.push(...lineRows)
+function extractRows(text: string): string[] {
+  const lines = text.split("\n")
+  const rows: string[] = []
+  let buffer = ""
+  for (const rawLine of lines) {
+    const line = rawLine.trim()
+    if (!line) continue
+    if (!buffer && line.startsWith("|")) {
+      buffer = line
+    } else if (buffer) {
+      buffer += " " + line
+    }
+    if (buffer && line.endsWith("|")) {
+      rows.push(buffer)
+      buffer = ""
+    }
   }
 
+  return rows
+}
+
+function parsePipeTableRows(body: any[]) {
+  if (!Array.isArray(body)) return [] as string[][]
+  const rows: string[][] = []
+  for (const block of body) {
+    if (!block || block._type !== "block" || !Array.isArray(block.children)) continue
+    const text = block.children.map((child: any) => child?.text || "").join("")
+    if (!text || !text.includes("|")) continue
+    const lineRows = extractRows(text)
+      .map((line) => normalizeRowCells(line))
+      .filter((cells) => cells.length > 0)
+    rows.push(...lineRows)
+  }
   const columnCount = rows.reduce((max, row) => Math.max(max, row.length), 0)
   return rows.map((row) => {
     if (row.length === columnCount) return row
@@ -53,15 +65,19 @@ export default function PipeTableSection({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded)
   const heading = section.heading?.trim()
   const rows = parsePipeTableRows(section.body || [])
-
   return (
     <section className="w-full bg-inherit py-6">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="w-full">
         <div
           className="flex items-center justify-between cursor-pointer py-3 border-b-2 border-gray-300"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          {heading ? <h2 className="text-2xl font-bold text-gray-900">{heading}</h2> : <span />}
+          {heading ? (
+            <h2 className="text-2xl font-bold text-gray-900">{heading}</h2>
+          ) : (
+            <span />
+          )}
+
           <button
             className="p-2 hover:bg-gray-100 rounded"
             aria-label={isExpanded ? "Collapse" : "Expand"}
@@ -83,23 +99,18 @@ export default function PipeTableSection({
                     {rows.map((row, rowIndex) => (
                       <tr
                         key={`${section._key || "pipe-table"}-row-${rowIndex}`}
-                        className={`border-b border-gray-200 ${rowIndex === 0 ? "bg-gray-50" : ""}`}
+                        className={`border-b border-gray-200 ${
+                          rowIndex === 0 ? "bg-gray-50" : ""
+                        }`}
                       >
                         {row.map((cell, colIndex) => (
                           <td
                             key={`${section._key || "pipe-table"}-cell-${rowIndex}-${colIndex}`}
-                            className={`px-5 py-3 text-sm text-gray-700 align-top ${rowIndex === 0 ? "font-bold" : ""}`}
+                            className={`px-5 py-3 text-sm text-gray-700 align-top ${
+                              rowIndex === 0 ? "font-bold" : ""
+                            }`}
                           >
-                            {cell && cell.includes("@") ? (
-                              <a
-                                href={`mailto:${cell}`}
-                                className="text-blue-600 underline break-all"
-                              >
-                                {cell}
-                              </a>
-                            ) : (
-                              cell || "-"
-                            )}
+                            {cell ? renderWithLinks(cell) : "-"}
                           </td>
                         ))}
                       </tr>
@@ -109,9 +120,56 @@ export default function PipeTableSection({
               </div>
             </div>
           ) : (
-            <div className="py-8 text-sm text-gray-500">{emptyStateText}</div>
+            <div className="py-8 text-sm text-gray-500">
+              {emptyStateText}
+            </div>
           ))}
       </div>
     </section>
   )
+}
+
+function renderWithLinks(text: string) {
+  if (!text) return "-"
+  const parts = text.split(
+    /(https?:\/\/[^\s]+|mailto:[^\s]+|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/gi
+  )
+  return parts.map((part, i) => {
+    if (part.match(/^https?:\/\//i)) {
+      return (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline hover:text-blue-800"
+        >
+          {part}
+        </a>
+      )
+    }
+    if (part.startsWith("mailto:")) {
+      return (
+        <a
+          key={i}
+          href={part}
+          className="text-blue-600 underline hover:text-blue-800"
+        >
+          {part.replace("mailto:", "")}
+        </a>
+      )
+    }
+    if (part.match(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i)) {
+      return (
+        <a
+          key={i}
+          href={`mailto:${part}`}
+          className="text-blue-600 underline hover:text-blue-800"
+        >
+          {part}
+        </a>
+      )
+    }
+    return part
+  })
 }

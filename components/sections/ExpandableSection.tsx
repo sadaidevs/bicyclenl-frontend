@@ -189,8 +189,8 @@ export default function ExpandableSection({
   const contentBlockCount = section.body?.length || 0
   const shouldBeExpandable = contentBlockCount > 5
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-inherit">
-      <div className="max-w-5xl mx-auto">
+    <section className="py-20 bg-inherit">
+      <div className="w-full">
         <div className="mb-6 text-gray-900">
           {section.heading && (
             <div className="mb-4">
