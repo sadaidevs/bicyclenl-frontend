@@ -1,19 +1,8 @@
 import Link from "next/link"
-import { Lora, Nunito_Sans } from "next/font/google"
 import { notFound } from "next/navigation"
 import { client } from "@/lib/sanity/sanity"
 import { formatDate as formatDisplayDate } from "@/lib/dateUtils"
 import type { NewsDetails } from "@/lib/types/content"
-
-const headingFont = Lora({
-    subsets: ["latin"],
-    weight: ["600", "700"],
-})
-
-const bodyFont = Nunito_Sans({
-    subsets: ["latin"],
-    weight: ["400", "500", "600", "700"],
-})
 
 export default async function NewsDetailsPage({
     params,
@@ -36,12 +25,12 @@ export default async function NewsDetailsPage({
     const contentBlocks = Array.isArray(article.content) ? article.content : []
 
     return (
-        <section className={`${bodyFont.className} bg-white py-14`}>
+        <section className="bg-white py-14">
             <div className="mx-auto max-w-4xl px-6">
                 <Link href="/news" className="mb-6 inline-block text-sm font-semibold text-blue-700 hover:text-blue-800">
                     Back to news
                 </Link>
-                <h1 className={`${headingFont.className} text-4xl font-bold leading-tight text-gray-900`}>
+                <h1 className="text-4xl font-bold leading-tight text-gray-900">
                     {article.title || "Untitled News"}
                 </h1>
                 <p className="mt-2 text-sm text-gray-500">{formattedDate}</p>
@@ -67,7 +56,7 @@ export default async function NewsDetailsPage({
                             return (
                             <h2
                                 key={block._key || `h2-${index}`}
-                                className={`${headingFont.className} mt-8 text-3xl font-semibold text-gray-900`}
+                                className="mt-8 text-3xl font-semibold text-gray-900"
                             >
                                 {text}
                             </h2>
@@ -77,7 +66,7 @@ export default async function NewsDetailsPage({
                             return (
                             <h3
                                 key={block._key || `h3-${index}`}
-                                className={`${headingFont.className} mt-6 text-2xl font-semibold text-gray-900`}
+                                className="mt-6 text-2xl font-semibold text-gray-900"
                             >
                                 {text}
                             </h3>

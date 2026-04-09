@@ -17,56 +17,68 @@ function renderPortableText(
   if (!blocks || !Array.isArray(blocks)) {
     return null
   }
+  const renderChildrenWithMarks = (block: any, keyPrefix: string) => {
+    const children = block.children || []
+    const markDefs = Array.isArray(block.markDefs) ? block.markDefs : []
+    return children.map((child: any, childIdx: number) => {
+      const text = child.text || ""
+      let element: any = text
+      if (child.marks && child.marks.length > 0) {
+        child.marks.forEach((mark: string) => {
+          if (mark === "strong") {
+            element = <strong key={`${keyPrefix}-strong-${childIdx}`}>{element}</strong>
+            return
+          }
+          if (mark === "em") {
+            element = <em key={`${keyPrefix}-em-${childIdx}`}>{element}</em>
+            return
+          }
+          if (mark === "code") {
+            element = (
+              <code
+                key={`${keyPrefix}-code-${childIdx}`}
+                className="bg-gray-100 px-2 py-1 rounded text-sm"
+              >
+                {element}
+              </code>
+            )
+            return
+          }
+          const markDef = markDefs.find((def: any) => def?._key === mark)
+          if (markDef?._type === "link" && markDef?.href) {
+            const href = markDef.href as string
+            const isExternal = /^https?:\/\//i.test(href)
+            element = (
+              <a
+                key={`${keyPrefix}-link-${childIdx}-${mark}`}
+                href={href}
+                target={isExternal ? "_blank" : undefined}
+                rel={isExternal ? "noopener noreferrer" : undefined}
+                className="underline decoration-gray-400 underline-offset-4 hover:text-blue-700"
+              >
+                {element}
+              </a>
+            )
+          }
+        })
+      }
+      return element
+    })
+  }
   const result = []
   let bulletList: any[] = []
   let numberList: any[] = []
   blocks.forEach((block, idx) => {
     const key = `${scopeId}-${idx}`
     if (block._type === "block" && block.listItem === "bullet") {
-      const children = block.children || []
-      const renderedChildren = children.map((child: any, childIdx: number) => {
-        let text = child.text || ""
-        let element: any = text
-        if (child.marks && child.marks.length > 0) {
-          if (child.marks.includes("strong")) {
-            element = <strong key={`${key}-strong-${childIdx}`}>{element}</strong>
-          }
-          if (child.marks.includes("em")) {
-            element = <em key={`${key}-em-${childIdx}`}>{element}</em>
-          }
-          if (child.marks.includes("code")) {
-            element = (
-              <code
-                key={`${key}-code-${childIdx}`}
-                className="bg-gray-100 px-2 py-1 rounded text-sm"
-              >
-                {element}
-              </code>
-            )
-          }
-        }
-        return element
-      })
+      const renderedChildren = renderChildrenWithMarks(block, key)
       bulletList.push(
         <li key={`${key}-li`} className="mb-2 text-lg text-gray-800">
           {renderedChildren}
         </li>
       )
     } else if (block._type === "block" && block.listItem === "number") {
-      const children = block.children || []
-      const renderedChildren = children.map((child: any, childIdx: number) => {
-        let text = child.text || ""
-        let element: any = text
-        if (child.marks && child.marks.length > 0) {
-          if (child.marks.includes("strong")) {
-            element = <strong key={`${key}-strong-${childIdx}`}>{element}</strong>
-          }
-          if (child.marks.includes("em")) {
-            element = <em key={`${key}-em-${childIdx}`}>{element}</em>
-          }
-        }
-        return element
-      })
+      const renderedChildren = renderChildrenWithMarks(block, key)
       numberList.push(
         <li key={`${key}-li`} className="mb-2 text-lg text-gray-800">
           {renderedChildren}
@@ -90,30 +102,7 @@ function renderPortableText(
         numberList = []
       }
       if (block._type === "block") {
-        const children = block.children || []
-        const renderedChildren = children.map((child: any, childIdx: number) => {
-          let text = child.text || ""
-          let element: any = text
-          if (child.marks && child.marks.length > 0) {
-            if (child.marks.includes("strong")) {
-              element = <strong key={`${key}-strong-${childIdx}`}>{element}</strong>
-            }
-            if (child.marks.includes("em")) {
-              element = <em key={`${key}-em-${childIdx}`}>{element}</em>
-            }
-            if (child.marks.includes("code")) {
-              element = (
-                <code
-                  key={`${key}-code-${childIdx}`}
-                  className="bg-gray-100 px-2 py-1 rounded text-sm"
-                >
-                  {element}
-                </code>
-              )
-            }
-          }
-          return element
-        })
+        const renderedChildren = renderChildrenWithMarks(block, key)
         switch (block.style) {
           case "h1":
             result.push(
@@ -205,7 +194,7 @@ export default function ExpandableSection({
         <div className="mb-6 text-gray-900">
           {section.heading && (
             <div className="mb-4">
-              <h2 className="text-5xl font-bold tracking-tight text-gray-900">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
                 {section.heading}
               </h2>
               <div className="h-1 w-24 mt-4 rounded-full bg-red-500"></div>
