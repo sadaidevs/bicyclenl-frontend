@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Lora, Nunito_Sans } from "next/font/google"
 import { Card, CardContent } from "@/components/ui/card"
 import EventsCalendar from "@/app/events/EventsCalendar"
 import PaginationControls from "@/components/ui/pagination-controls"
@@ -16,16 +15,6 @@ import { buildSearchText, matchesDateRange, matchesExactDate, normalizeQuery } f
 import type { EventItem, NewsItem } from "@/lib/types/content"
 
 const NEWS_PAGE_SIZE = 6
-
-const headingFont = Lora({
-    subsets: ["latin"],
-    weight: ["600", "700"],
-})
-
-const bodyFont = Nunito_Sans({
-    subsets: ["latin"],
-    weight: ["400", "500", "600", "700"],
-})
 
 export default function NewsPage() {
     const [news, setNews] = useState<NewsItem[]>([])
@@ -163,11 +152,11 @@ export default function NewsPage() {
     }
 
     return (
-        <section className={`${bodyFont.className} bg-gray-50 py-14`}>
+        <section className="bg-gray-50 py-14">
             <div className="mx-auto max-w-6xl px-6">
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
                     <div className="lg:col-span-3">
-                        <h2 className={`${headingFont.className} mb-4 text-3xl font-bold tracking-tight text-gray-900`}>
+                        <h2 className="mb-4 text-3xl font-bold tracking-tight text-gray-900">
                             Latest News
                         </h2>
                         <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">
@@ -236,7 +225,7 @@ export default function NewsPage() {
                                         <div className="mb-2 text-xs text-gray-500">{formatDisplayDate(item.publishedAt)}</div>
                                         <Link
                                             href={`/news/${item.slug || item._id}`}
-                                            className={`${headingFont.className} text-3xl font-semibold leading-tight text-gray-900 transition hover:text-blue-600`}
+                                            className="text-3xl font-semibold leading-tight text-gray-900 transition hover:text-blue-600"
                                         >
                                             {item.title || "Untitled News"}
                                         </Link>
@@ -269,7 +258,7 @@ export default function NewsPage() {
                             onPreviousMonth={goToPreviousMonth}
                             onNextMonth={goToNextMonth}
                             onSelectDate={setSelectedDate}
-                            monthLabelClassName={`${headingFont.className} text-base font-semibold text-gray-900`}
+                            monthLabelClassName="text-base font-semibold text-gray-900"
                             noteText="Dates with a red dot have scheduled events."
                         />
                         <div className="space-y-3">

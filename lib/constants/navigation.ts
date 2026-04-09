@@ -11,12 +11,10 @@ export type NavDropdownItem = {
 export const navLinks: NavLinkItem[] = [
   { name: "Home", href: "/" },
   { name: "Membership", href: "/membership" },
-  { name: "Development", href: "/development" },
+  { name: "Athelete Performance / Development", href: "/development" },
   { name: "Events", href: "/events" },
-  { name: "Coaching / Officials", href: "/coaching-officials" },
-  { name: "Partners / Sponsors", href: "/partners-sponsors" },
+  { name: "Coaching / Officials / Training", href: "/coaching-officials" },
   { name: "News", href: "/news" },
-  { name: "Resources", href: "/resources" },
   { name: "Contact", href: "/contact" },
   { name: "Company Overview", href: "/company" },
 ]
@@ -61,16 +59,3 @@ export const coachingItems: NavDropdownItem[] = [
   { label: "Officials (Commissaires)", href: "/coaching-officials/#officials" },
 ]
 
-export const partnersItems: NavDropdownItem[] = [
-  { label: "Partners / Sponsors", href: "/partners/#partners" },
-  { label: "Links", href: "/partners/#links" },
-]
-
-export const resourceItems: NavDropdownItem[] = [
-  { label: "Ride With Us", href: "/partners/#ride_with_us" },
-  { label: "T’Railway", href: "/resources/#trailway" },
-  { label: "Community Guide To Biking", href: "/resources/#community_guide" },
-  { label: "Bike Maps", href: "/resources/#bike_maps" },
-  { label: "Legislation", href: "/resources/#Legislation" },
-  { label: "Bicycle Safety Campaign", href: "/resources/#bicycle_safety_campaign" },
-]

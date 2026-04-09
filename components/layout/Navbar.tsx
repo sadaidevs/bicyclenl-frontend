@@ -13,8 +13,6 @@ import {
 	developmentItems,
 	eventsItems,
 	coachingItems,
-	partnersItems,
-	resourceItems,
 } from "@/lib/constants/navigation"
 
 const dropdownItemsByLink: Record<string, { label: string; href: string }[]> = {
@@ -23,8 +21,6 @@ const dropdownItemsByLink: Record<string, { label: string; href: string }[]> = {
 	Development: developmentItems,
 	Events: eventsItems,
 	"Coaching / Officials": coachingItems,
-	"Partners / Sponsors": partnersItems,
-	Resources: resourceItems,
 }
 
 export default function Navbar() {
@@ -38,10 +34,9 @@ export default function Navbar() {
 	const renderDesktopNavLink = (link: { name: string; href: string }) => {
 		const isActive = pathname === link.href
 		const dropdownItems = dropdownItemsByLink[link.name] ?? []
-
 		if (dropdownItems.length > 0) {
 			return (
-				<div key={link.name} className="relative group py-3">
+				<div key={link.name} className="relative group py-1">
 					<Link
 						href={link.href}
 						className={`transition whitespace-nowrap ${
@@ -56,7 +51,6 @@ export default function Navbar() {
 				</div>
 			)
 		}
-
 		return (
 			<Link
 				key={link.name}
@@ -85,11 +79,18 @@ export default function Navbar() {
 						/>
 					</div>
 				</Link>
-
-				<nav className="hidden flex-1 items-center justify-center gap-3 text-[13px] font-semibold xl:flex 2xl:gap-5 2xl:text-[15px]">
-					{navLinks.map(renderDesktopNavLink)}
+				<nav className="hidden flex-1 justify-center xl:flex">
+					<div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[13px] font-semibold 2xl:text-[15px] max-w-[950px]">
+						{navLinks.map((link) => (
+							<div
+							key={link.name}
+							className="flex justify-center items-center h-[36px]"
+							>
+								{renderDesktopNavLink(link)}
+							</div>
+						))}
+					</div>
 				</nav>
-
 				<div className="flex items-center gap-2">
 					<Link href="/membership/#registration" className="shrink-0">
 						<Button className="rounded-full bg-red-500 px-4 text-white hover:bg-red-600 sm:px-6">
@@ -110,7 +111,6 @@ export default function Navbar() {
 					</Button>
 				</div>
 			</div>
-
 			{menuOpen ? (
 				<div
 					id="site-nav-menu"
@@ -133,7 +133,7 @@ export default function Navbar() {
 										>
 											{link.name}
 										</Link>
-										{dropdownItems.length > 0 ? (
+										{dropdownItems.length > 0 && (
 											<div className="mt-3 grid gap-2 text-sm text-gray-600">
 												{dropdownItems.map((item) => (
 													<Link
@@ -146,7 +146,7 @@ export default function Navbar() {
 													</Link>
 												))}
 											</div>
-										) : null}
+										)}
 									</div>
 								)
 							})}

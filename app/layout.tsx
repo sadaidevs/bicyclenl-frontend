@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Lora, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AboutSection from "@/components/home/AboutSection";
 import { AboutContactProvider } from "@/components/home/AboutContactContext";
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+
+const headingFont = Lora({
+  variable: "--font-lora",
   subsets: ["latin"],
+  weight: ["600", "700"],
+});
+
+const bodyFont = Nunito_Sans({
+  variable: "--font-nunito",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -35,7 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col">
+      <body className={`${bodyFont.variable} ${headingFont.variable} ${geistMono.variable} min-h-screen flex flex-col`}>
         <AboutContactProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
