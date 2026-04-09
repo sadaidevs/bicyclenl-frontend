@@ -2,7 +2,7 @@
 
 import type { ComponentType, ReactNode } from "react"
 import type { PageSectionItem, Section } from "@/lib/types/content"
-import ExpandableSection from "@/app/company/ExpandableSection"
+import ExpandableSection from "@/components/sections/ExpandableSection"
 import PipeTableSection from "@/components/sections/PipeTableSection"
 
 interface Props {
@@ -38,22 +38,24 @@ export default function PageSectionRenderer({
 
   if (renderSpecialSection) {
     const special = renderSpecialSection(section)
-    if (special) return special
+    if (special) {
+      return (
+        <div className="mx-auto max-w-6xl px-4">
+          {special}
+        </div>
+      )
+    }
   }
 
   const id = getSectionId(section)
 
-  if (isTableSection(section)) {
-    return (
-      <div id={id}>
-        <TableSectionComponent section={section} />
-      </div>
-    )
-  }
+  const Content = isTableSection(section)
+    ? TableSectionComponent
+    : TextSectionComponent
 
   return (
-    <div id={id}>
-      <TextSectionComponent section={section} />
+    <div id={id} className="mx-auto max-w-6xl px-4">
+      <Content section={section} />
     </div>
   )
 }
