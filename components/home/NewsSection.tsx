@@ -19,7 +19,7 @@ const bodyFont = Nunito_Sans({
     weight: ["400", "500", "600", "700"],
 })
 
-export default function NewsSection() {
+export default function NewsSection({ isGrayBackground = false }: { isGrayBackground?: boolean }) {
     const [news, setNews] = useState<NewsItem[]>([])
     useEffect(() => {
         async function loadNews() {
@@ -59,7 +59,11 @@ export default function NewsSection() {
     }, [])
 
   return (
-    <section className={`py-16 bg-white ${bodyFont.className}`}>
+    <section
+        className={`py-16 ${
+            isGrayBackground ? "bg-gray-100" : "bg-white"
+        } ${bodyFont.className}`}
+    >
         <div className="max-w-6xl mx-auto px-6">
             <h2 className={`mb-8 text-2xl font-bold ${headingFont.className}`}>Stay Updated with Our Latest News</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -69,7 +73,15 @@ export default function NewsSection() {
                         href={`/news/${item.slug || item._id}`}
                         className="group h-full overflow-hidden rounded-2xl cursor-pointer transition duration-300 hover:-translate-y-1 hover:shadow-xl"
                     >
-                        <Card className="flex h-full bg-gray-100 text-gray-900 ring-1 ring-gray-200 transition duration-300 group-hover:bg-gray-50 group-hover:ring-gray-300">
+                        <Card
+                            className={`flex h-full text-gray-900 ring-1 transition duration-300
+                                ${
+                                isGrayBackground
+                                    ? "bg-white ring-gray-200 hover:bg-gray-50"
+                                    : "bg-gray-100 ring-gray-200 hover:bg-gray-50"
+                                }
+                            `}
+                        >                           
                             {item.featuredImage && (
                                 <div className="relative w-full overflow-hidden bg-gray-200 aspect-[16/10]">
                                     <Image

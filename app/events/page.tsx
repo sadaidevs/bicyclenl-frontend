@@ -449,7 +449,7 @@ export default function EventsPage() {
         <FormsSection />
       </div>
       <EventsContact />
-      <NewsSection />
+      <NewsSection isGrayBackground />
     </section>
   )
 }
