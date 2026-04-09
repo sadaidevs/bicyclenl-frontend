@@ -10,6 +10,8 @@ import NewsSection from "@/components/home/NewsSection"
 import EventExpandableCard from "@/app/events/EventExpandableCard"
 import FormsSection from "./FormsSection"
 import ResultsSection from "./ResultsSection"
+import EventsHeader from "./EventsHeader"
+import EventsContact from "./EventsContact"
 
 const PAGE_SIZE = 5
 type EventTab = "today" | "upcoming" | "past" | "tba"
@@ -259,7 +261,9 @@ export default function EventsPage() {
 
   return (
     <section className="bg-gray-50 py-14">
+      
       <div className="mx-auto max-w-6xl px-6">
+        <EventsHeader />
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Events</h1>
           <p className="mt-2 text-sm text-gray-600">Browse upcoming Bicycle NL events</p>
@@ -444,6 +448,7 @@ export default function EventsPage() {
       <div id="forms">
         <FormsSection />
       </div>
+      <EventsContact />
       <NewsSection />
     </section>
   )
