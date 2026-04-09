@@ -18,9 +18,11 @@ export default async function Home() {
       <Hero />
       <QuickLinks />
       {companyHeader ? (
-        <SectionRenderer section={companyHeader} slug="company" />
+        <div className="bg-gray-100">
+          <SectionRenderer section={companyHeader} slug="company" />
+        </div>
       ) : (
-        "" 
+        "Learn About Us In Company Overview"
       )}
       <NewsSection />
       <EventsSection />

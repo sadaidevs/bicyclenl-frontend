@@ -110,7 +110,7 @@ export default function PipeTableSection({
                               rowIndex === 0 ? "font-bold" : ""
                             }`}
                           >
-                            {cell ? renderWithLinks(cell) : "-"}
+                            {cell ? renderWithLinks(cell) : ""}
                           </td>
                         ))}
                       </tr>

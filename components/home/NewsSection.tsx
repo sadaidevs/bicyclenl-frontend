@@ -61,7 +61,7 @@ export default function NewsSection() {
   return (
     <section className={`py-16 bg-white ${bodyFont.className}`}>
         <div className="max-w-6xl mx-auto px-6">
-            <h2 className={`mb-8 text-2xl font-bold ${headingFont.className}`}>Latest News</h2>
+            <h2 className={`mb-8 text-2xl font-bold ${headingFont.className}`}>Stay Updated with Our Latest News</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {news.map((item, index) => (
                     <Link

@@ -67,8 +67,8 @@ export default async function DynamicPage(
 
           const rowClass =
             index % 2 === 0
-              ? "[&>section]:!bg-white"
-              : "[&>section]:!bg-gray-100"
+              ? "bg-white"
+              : "bg-gray-100"
 
           return (
             <div key={key} className={rowClass}>

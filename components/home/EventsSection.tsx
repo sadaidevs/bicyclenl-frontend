@@ -55,7 +55,7 @@ export default function EventsSection() {
     <section className="py-16 bg-gray-100">
       <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
         <div>
-          <h2 className="text-2xl font-bold mb-6">Upcoming Events</h2>
+          <h2 className="text-2xl font-bold mb-6">Explore Upcoming Events</h2>
           <div className="space-y-4">
             {events.map((event, index) => (
               <div

@@ -135,4 +135,8 @@
   h6 {
     font-family: var(--font-heading);
   }
+  .the-actual-slider-class {
+  display: none !important;
 }
+}
+
