@@ -38,6 +38,7 @@ export const eventsItems: NavDropdownItem[] = [
   { label: "Calendar", href: "/events#calendar" },
   { label: "Results", href: "/events#results" },
   { label: "Forms", href: "/events#forms" },
+  { label: "Contact", href: "/events#contact" },
 ]
 
 export const coachingItems: NavDropdownItem[] = [

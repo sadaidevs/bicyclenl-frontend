@@ -448,7 +448,9 @@ export default function EventsPage() {
       <div id="forms">
         <FormsSection />
       </div>
-      <EventsContact />
+      <div id="contact">
+        <EventsContact  />
+      </div>
       <NewsSection isGrayBackground />
     </section>
   )
