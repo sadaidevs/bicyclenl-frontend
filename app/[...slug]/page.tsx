@@ -83,7 +83,7 @@ export default async function DynamicPage(
       )}
 
       <div className={nextSectionClass}>
-        <NewsSection />
+        <NewsSection isGrayBackground={sectionCount % 2 !== 0} />
       </div>
     </main>
   )
