@@ -5,10 +5,10 @@ import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 const images = [
-  "/images/home1.jpg",
-  "/images/home2.jpeg",
-  "/images/home3.jpg",
-  "/images/home4.jpg",
+  "/images/home6.jpg",
+  "/images/home10.JPG",
+  "/images/home8.jpg",
+  "/images/home9.jpg",
 ]
 
 export default function Hero() {
