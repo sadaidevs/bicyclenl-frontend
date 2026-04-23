@@ -27,7 +27,7 @@ function hasValidEventDate(event: EventItem) {
 
 export default function EventsPage() {
   const [events, setEvents] = useState<EventItem[]>([])
-  const [activeTab, setActiveTab] = useState<EventTab>("today")
+  const [activeTab, setActiveTab] = useState<EventTab>("upcoming")
   const [tabPages, setTabPages] = useState<TabPages>({
     today: 1,
     upcoming: 1,
