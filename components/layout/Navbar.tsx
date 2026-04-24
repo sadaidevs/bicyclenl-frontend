@@ -116,7 +116,7 @@ export default function Navbar() {
 			{menuOpen ? (
 				<div
 					id="site-nav-menu"
-					className="absolute left-0 right-0 top-full z-50 border-b border-gray-200 bg-white px-4 py-4 shadow-lg xl:hidden"
+					className="absolute left-0 right-0 top-full z-50 border-b border-gray-200 bg-white px-4 overflow-y-auto h-screen py-4 shadow-lg xl:hidden"
 				>
 					<div className="mx-auto max-w-7xl space-y-4">
 						<nav className="grid gap-4 md:grid-cols-2">
